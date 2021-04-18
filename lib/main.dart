@@ -10,7 +10,7 @@ void main() {
         theme: ThemeData.dark().copyWith(
 
         ),
-      )
+      ),
   );
 }
 
