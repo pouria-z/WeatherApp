@@ -2,7 +2,7 @@
 
 
 
-- Weather app includes the following features:
+Weather app includes the following features:
 
 - Access current weather data for any location including over 200,000 cities
 
