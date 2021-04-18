@@ -3,11 +3,11 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
 import 'package:http/http.dart';
 import 'dart:convert';
-import 'package:weather_app/Home.dart';
+import 'package:weather_app/home.dart';
 import 'package:flutter_typeahead/flutter_typeahead.dart';
-import 'package:weather_app/AllCities.dart';
+import 'package:weather_app/all_cities.dart';
 import 'package:pull_to_refresh/pull_to_refresh.dart';
-import 'package:weather_app/Info.dart';
+import 'package:weather_app/info.dart';
 import 'package:geolocator/geolocator.dart';
 
 class GetLocationWidget extends StatefulWidget {

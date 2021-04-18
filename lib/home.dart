@@ -4,11 +4,11 @@ import 'package:flutter/widgets.dart';
 import 'dart:convert';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:http/http.dart';
-import 'package:weather_app/GetLocation.dart';
+import 'package:weather_app/get_location.dart';
 import 'package:pull_to_refresh/pull_to_refresh.dart';
 import 'package:flutter_typeahead/flutter_typeahead.dart';
-import 'package:weather_app/AllCities.dart';
-import 'package:weather_app/Info.dart';
+import 'package:weather_app/all_cities.dart';
+import 'package:weather_app/info.dart';
 
 
 
@@ -591,11 +591,8 @@ class _HomeState extends State<Home> {
 
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
     getWeather().then((value) => currentWeather());
-    //this.getImage();
-
   }
 
   @override
