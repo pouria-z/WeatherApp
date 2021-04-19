@@ -9,7 +9,6 @@ import 'package:weather_app/all_cities.dart';
 import 'package:pull_to_refresh/pull_to_refresh.dart';
 import 'package:weather_app/info.dart';
 import 'package:geolocator/geolocator.dart';
-import 'package:flutter/widgets.dart';
 import 'package:weather_app/widgets.dart';
 
 class GetLocationWidget extends StatefulWidget {
@@ -21,26 +20,31 @@ class _GetLocationState extends State<GetLocationWidget> {
 
   var lat;
   var lon;
+  // LocCurrentWeather locCurrentWeather;
+  // ForecastItems forecastItems;
+  // LocForecastWeather locForecastWeather;
 
-  ///new variables
-  String icon;
-  double temp;
-  String desc;
-  double wind;
-  int code;
 
-  ///separate from here
+  ///current variables
+  var icon;
+  var temp;
+  var desc;
+  var wind;
+  var code;
 
-  String fCity;
-  String fIcon;
-  double fTemp;
-  double fMinTemp;
-  double fMaxTemp;
-  String fDesc;
+  ///forecast variables
+  var fCity;
+  var fIcon;
+  var fTemp;
+  var fMinTemp;
+  var fMaxTemp;
   var fDate;
-  var weather;
-  List<Widget> weatherWidget = [];
-  ///new variables
+  List fCityList = [];
+  List fIconList = [];
+  List fTempList = [];
+  List fMinTempList = [];
+  List fMaxTempList = [];
+  List fDateList = [];
 
   RefreshController refreshController =
   RefreshController(initialRefresh: false);
@@ -64,45 +68,48 @@ class _GetLocationState extends State<GetLocationWidget> {
     }
   }
 
-  Future locCurrentWeather() async {
+  Future currentWeather() async {
 
     var url = "https://api.weatherbit.io/v2.0/current?lat=$lat&lon=$lon&key=bbdea9bfe56d427f9a8e2a35eea23d73";
     Response response = await get(url);
-    var locWeather = jsonDecode(response.body);
+    var json = jsonDecode(response.body);
     setState(() {
       LocCurrentWeather(
-        icon = locWeather['data'][0]['weather']['icon'],
-        temp = locWeather['data'][0]['temp'],
-        desc = locWeather['data'][0]['weather']['description'],
-        wind = locWeather['data'][0]['wind_spd'],
-        wind = locWeather['data'][0]['weather']['code'],
+        icon=json['data'][0]['weather']['icon'],
+        temp=json['data'][0]['temp'].round(),
+        desc=json['data'][0]['weather']['description'],
+        wind=json['data'][0]['wind_spd'].round(),
+        code=json['data'][0]['weather']['code'],
       );
     });
     refreshController.refreshCompleted();
 
   }
 
-  Future locForecastWeather() async {
+  Future forecastWeather() async {
 
     var url = "https://api.weatherbit.io/v2.0/forecast/daily?lat=$lat&lon=$lon&key=bbdea9bfe56d427f9a8e2a35eea23d73";
     Response response = await get(url);
-    var locWeather = jsonDecode(response.body);
-    for(weather in locWeather){
-      setState(() {
-        LocForecastWeather(
-          fCity = weather['city_name'],
-          fIcon = weather['data']['weather']['icon'],
-          fTemp = weather['data']['temp'],
-          fMinTemp = weather['data']['min_temp'],
-          fMaxTemp = weather['data']['max_temp'],
-          fDesc = weather['data']['weather']['description'],
-          fDate = weather['data']['datetime'],
-        );
-        final test = ForecastCard(date: fDate, temp: fTemp, icon: fIcon);
-        weatherWidget.add(test);
-      });
-    }
+    var json = jsonDecode(response.body);
+
+    setState(() {
+      for (var item in json['data']){
+          fCity=json['city_name'];
+          fIcon=item['weather']['icon'];
+          fTemp=item['temp'].round();
+          fMinTemp=json['data'][0]['min_temp'].round();
+          fMaxTemp=json['data'][0]['max_temp'].round();
+          fDate=item['datetime'];
+          fCityList.add(fCity);
+          fIconList.add(fIcon);
+          fTempList.add(fTemp);
+          fMinTempList.add(fMinTemp);
+          fMaxTempList.add(fMaxTemp);
+          fDateList.add(fDate);
+      }
+    });
     refreshController.refreshCompleted();
+
   }
 
   // ignore: missing_return
@@ -399,7 +406,7 @@ class _GetLocationState extends State<GetLocationWidget> {
 @override
   void initState() {
     super.initState();
-    loc().then((value) => locCurrentWeather().then((value) => locForecastWeather()));
+    loc().then((value) => currentWeather().then((value) => forecastWeather()));
   }
 
 
@@ -416,243 +423,244 @@ class _GetLocationState extends State<GetLocationWidget> {
         body: SmartRefresher(
           onRefresh:() {
             loc();
-            locCurrentWeather();
-            locForecastWeather();
+            currentWeather();
+            forecastWeather();
           },
           controller: refreshController,
-          child: Column(
-            children: [
-              Container(
-                width: MediaQuery.of(context).size.width,
-                height: MediaQuery.of(context).size.height/15,
-                decoration: BoxDecoration(
-                  color: Theme.of(context).primaryColor,
-                ),
-                child: Row(
-                  children: [
-                    SizedBox(width: 10,),
-                    IconButton(icon: Icon(Icons.info_outline_rounded,
-                      color: Colors.white,
-                      size: MediaQuery.of(context).size.height/35,
-                     ),
-                      onPressed: () {
-                      Navigator.push(context, CupertinoPageRoute(
-                        builder: (context) => Info(),
-                      ));
-                     }
-                    ),
-                    SizedBox(
-                      width: 10,
-                    ),
-                    Expanded(
-                      child: TypeAheadField(
-                        suggestionsCallback: (String pattern) async {
-                          return CitiesService.cities.where((item) => item.
-                          toLowerCase().startsWith(pattern.toLowerCase())).toList();
-                        },
-                        itemBuilder: (context, suggestion){
-                          return ListTile(
-                            leading: Icon(Icons.search_rounded,
-                              color: Colors.white,
-                              size: MediaQuery.of(context).size.height/35,
-                            ),
-                            title: Text(suggestion,
+          child: SingleChildScrollView(
+            child: Column(
+              children: [
+                Container(
+                  width: MediaQuery.of(context).size.width,
+                  height: MediaQuery.of(context).size.height/15,
+                  decoration: BoxDecoration(
+                    color: Theme.of(context).primaryColor,
+                  ),
+                  child: Row(
+                    children: [
+                      SizedBox(width: 10,),
+                      IconButton(icon: Icon(Icons.info_outline_rounded,
+                        color: Colors.white,
+                        size: MediaQuery.of(context).size.height/35,
+                       ),
+                        onPressed: () {
+                        Navigator.push(context, CupertinoPageRoute(
+                          builder: (context) => Info(),
+                        ));
+                       }
+                      ),
+                      SizedBox(
+                        width: 10,
+                      ),
+                      Expanded(
+                        child: TypeAheadField(
+                          suggestionsCallback: (String pattern) async {
+                            return CitiesService.cities.where((item) => item.
+                            toLowerCase().startsWith(pattern.toLowerCase())).toList();
+                          },
+                          itemBuilder: (context, suggestion){
+                            return ListTile(
+                              leading: Icon(Icons.search_rounded,
+                                color: Colors.white,
+                                size: MediaQuery.of(context).size.height/35,
+                              ),
+                              title: Text(suggestion,
+                                style: TextStyle(
+                                  color: Colors.white,
+                                ),
+                              ),
+                            );
+                          },
+                          transitionBuilder: (context, suggestionsBox, controller) {
+                            if (cityname.text.length >= 3){
+                              return suggestionsBox;
+                            }
+                            else {
+                              return null;
+                            }
+                          },
+                          onSuggestionSelected: (suggestion){
+                            cityname.text = suggestion;
+                            Navigator.push(context, CupertinoPageRoute(
+                              builder: (context) => Home(),
+                            ));
+                          },
+                          noItemsFoundBuilder: (context) => ListTile(
+                            title: Text(
+                              "No Item Found!",
                               style: TextStyle(
                                 color: Colors.white,
                               ),
                             ),
-                          );
-                        },
-                        transitionBuilder: (context, suggestionsBox, controller) {
-                          if (cityname.text.length >= 3){
-                            return suggestionsBox;
-                          }
-                          else {
-                            return null;
-                          }
-                        },
-                        onSuggestionSelected: (suggestion){
-                          cityname.text = suggestion;
-                          Navigator.push(context, CupertinoPageRoute(
-                            builder: (context) => Home(),
-                          ));
-                        },
-                        noItemsFoundBuilder: (context) => ListTile(
-                          title: Text(
-                            "No Item Found!",
-                            style: TextStyle(
-                              color: Colors.white,
-                            ),
-                          ),
-                          leading: Icon(Icons.dangerous,
-                            color: Colors.white,
-                            size: MediaQuery.of(context).size.height/35,
-                          ),
-                        ),
-                        hideSuggestionsOnKeyboardHide: true,
-                        suggestionsBoxDecoration: SuggestionsBoxDecoration(
-                            borderRadius: BorderRadius.only(bottomRight: Radius.circular(15), bottomLeft: Radius.circular(15)),
-                            color: Theme.of(context).primaryColor,
-                            elevation: 0,
-                            offsetX: -69,
-                            constraints: BoxConstraints.tightFor(
-                              width: MediaQuery.of(context).size.width,
-                            )
-                        ),
-                        textFieldConfiguration: TextFieldConfiguration(
-                          textCapitalization: TextCapitalization.words,
-                          style: TextStyle(
-                              color: Colors.white
-                          ),
-                          cursorColor: Colors.white,
-                          controller: cityname,
-                          textInputAction: TextInputAction.search,
-                          decoration: InputDecoration(
-                            icon: Icon(Icons.search_rounded,
+                            leading: Icon(Icons.dangerous,
                               color: Colors.white,
                               size: MediaQuery.of(context).size.height/35,
                             ),
-                            focusedBorder: InputBorder.none,
-                            enabledBorder: InputBorder.none,
-                            hintText: "Search",
-                            hintStyle: TextStyle(
-                              color: Colors.white24,
-                              fontSize: MediaQuery.of(context).size.height/50,
-                            ),
-                            //suffixIcon:
                           ),
-                          onSubmitted: (value) {
-                            if (cityname.text.isEmpty){
-                              showDialog(context: context,
-                                builder: (BuildContext context) => AlertDialog(
-                                  title: Text(
-                                    "Error!",
-                                    style: TextStyle(
-                                      color: Colors.white,
-                                    ),
-                                  ),
-                                  content: Text(
-                                    "Please Enter City Name!",
-                                    style: TextStyle(
-                                      color: Colors.white,
-                                    ),
-                                  ),
-                                  actions: [
-                                    TextButton(onPressed: () {
-                                      Navigator.pop(context);
-                                      }, child: Text(
-                                      "OK",
+                          hideSuggestionsOnKeyboardHide: true,
+                          suggestionsBoxDecoration: SuggestionsBoxDecoration(
+                              borderRadius: BorderRadius.only(bottomRight: Radius.circular(15), bottomLeft: Radius.circular(15)),
+                              color: Theme.of(context).primaryColor,
+                              elevation: 0,
+                              offsetX: -69,
+                              constraints: BoxConstraints.tightFor(
+                                width: MediaQuery.of(context).size.width,
+                              )
+                          ),
+                          textFieldConfiguration: TextFieldConfiguration(
+                            textCapitalization: TextCapitalization.words,
+                            style: TextStyle(
+                                color: Colors.white
+                            ),
+                            cursorColor: Colors.white,
+                            controller: cityname,
+                            textInputAction: TextInputAction.search,
+                            decoration: InputDecoration(
+                              icon: Icon(Icons.search_rounded,
+                                color: Colors.white,
+                                size: MediaQuery.of(context).size.height/35,
+                              ),
+                              focusedBorder: InputBorder.none,
+                              enabledBorder: InputBorder.none,
+                              hintText: "Search",
+                              hintStyle: TextStyle(
+                                color: Colors.white24,
+                                fontSize: MediaQuery.of(context).size.height/50,
+                              ),
+                              //suffixIcon:
+                            ),
+                            onSubmitted: (value) {
+                              if (cityname.text.isEmpty){
+                                showDialog(context: context,
+                                  builder: (BuildContext context) => AlertDialog(
+                                    title: Text(
+                                      "Error!",
                                       style: TextStyle(
                                         color: Colors.white,
                                       ),
                                     ),
+                                    content: Text(
+                                      "Please Enter City Name!",
+                                      style: TextStyle(
+                                        color: Colors.white,
+                                      ),
                                     ),
-                                  ],
-                                ),
-                              );
-                            }
-                            else {
-                              return Navigator.push(context, CupertinoPageRoute(
-                                builder: (context) => Home(),
-                              ));
-                            }
-                          },
-                        ),
-                        suggestionsBoxVerticalOffset: 6,
-                      ),
-                    ),
-                    Clear(),
-                  ],
-                ),
-              ),
-              pleaseRef(),
-              Padding(
-                padding: const EdgeInsets.only(top: 15,left: 15, right: 15),
-                child: Container(
-                  decoration: BoxDecoration(
-                    color: Theme.of(context).primaryColor,
-                    borderRadius: BorderRadius.circular(20),
-                  ),
-                  height: MediaQuery.of(context).size.height/3,
-                  width: MediaQuery.of(context).size.width,
-                  child: getImage(),
-                ),
-              ),
-              SizedBox(
-                height: 30,
-              ),
-              fCity == null ? CircularProgressIndicator(
-                strokeWidth: 2,
-              )
-              : Expanded(
-                child: Padding(
-                  padding: const EdgeInsets.only(left: 15.0,right: 15.0),
-                  child: ListView(
-                    children: [
-                      ListTile(
-                        leading: Image.asset('assets/icons/mintemp.png',
-                          width: MediaQuery.of(context).size.width/12,
-                          height: MediaQuery.of(context).size.height/25,
-                        ),
-                        title: Text(
-                          "Min Temperature",
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: MediaQuery.of(context).size.height/50,
+                                    actions: [
+                                      TextButton(onPressed: () {
+                                        Navigator.pop(context);
+                                        }, child: Text(
+                                        "OK",
+                                        style: TextStyle(
+                                          color: Colors.white,
+                                        ),
+                                      ),
+                                      ),
+                                    ],
+                                  ),
+                                );
+                              }
+                              else {
+                                return Navigator.push(context, CupertinoPageRoute(
+                                  builder: (context) => Home(),
+                                ));
+                              }
+                            },
                           ),
-                        ),
-                        trailing: minTemp(),
-                      ),
-                      ListTile(
-                        leading: Image.asset('assets/icons/maxtemp.png',
-                          width: MediaQuery.of(context).size.width/12,
-                          height: MediaQuery.of(context).size.height/25,
-                        ),
-                        title: Text(
-                          "Max Temperature",
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: MediaQuery.of(context).size.height/50,
-                          ),
-                        ),
-                        trailing: maxTemp(),
-                      ),
-                      ListTile(
-                        leading: Image.asset('assets/icons/wind.png',
-                          width: MediaQuery.of(context).size.width/12,
-                          height: MediaQuery.of(context).size.height/25,
-                        ),
-                        title: Text(
-                          "Wind Speed",
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: MediaQuery.of(context).size.height/50,
-                          ),
-                        ),
-                        trailing: windSpeed(),
-                      ),
-                      SizedBox(
-                        height: MediaQuery.of(context).size.height/90,
-                      ),
-                      Divider(
-                        thickness: 0.2,
-                        color: Colors.white,
-                      ),
-                      SizedBox(
-                        height: MediaQuery.of(context).size.height/40,
-                      ),
-                      /// hereeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee
-                      Padding(
-                        padding: EdgeInsets.symmetric(horizontal: 15),
-                        child: ListView(
-                          children: weatherWidget,
+                          suggestionsBoxVerticalOffset: 6,
                         ),
                       ),
+                      Clear(),
                     ],
                   ),
                 ),
-              )
-            ],
+                //pleaseRef(),
+                Padding(
+                  padding: EdgeInsets.only(top: 15,left: 15, right: 15),
+                  child: Container(
+                    decoration: BoxDecoration(
+                      color: Theme.of(context).primaryColor,
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    height: MediaQuery.of(context).size.height/3,
+                    width: MediaQuery.of(context).size.width,
+                    child: getImage(),
+                  ),
+                ),
+                SizedBox(
+                  height: 30,
+                ),
+                Column(
+                  children: [
+                    ListTile(
+                      leading: Image.asset('assets/icons/mintemp.png',
+                        width: MediaQuery.of(context).size.width/12,
+                        height: MediaQuery.of(context).size.height/25,
+                      ),
+                      title: Text(
+                        "Min Temperature",
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: MediaQuery.of(context).size.height/50,
+                        ),
+                      ),
+                      trailing: Text(fMinTemp.toString()),
+                    ),
+                    ListTile(
+                      leading: Image.asset('assets/icons/maxtemp.png',
+                        width: MediaQuery.of(context).size.width/12,
+                        height: MediaQuery.of(context).size.height/25,
+                      ),
+                      title: Text(
+                        "Max Temperature",
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: MediaQuery.of(context).size.height/50,
+                        ),
+                      ),
+                      trailing: maxTemp(),
+                    ),
+                    ListTile(
+                      leading: Image.asset('assets/icons/wind.png',
+                        width: MediaQuery.of(context).size.width/12,
+                        height: MediaQuery.of(context).size.height/25,
+                      ),
+                      title: Text(
+                        "Wind Speed",
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: MediaQuery.of(context).size.height/50,
+                        ),
+                      ),
+                      trailing: windSpeed(),
+                    ),
+                    SizedBox(
+                      height: MediaQuery.of(context).size.height/90,
+                    ),
+                    Divider(
+                      thickness: 0.2,
+                      color: Colors.white,
+                    ),
+                    SizedBox(
+                      height: MediaQuery.of(context).size.height/40,
+                    ),
+                    /// hereeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee
+                    Padding(
+                      padding: EdgeInsets.symmetric(horizontal: 15),
+                      child: ListView.builder(
+                        shrinkWrap: true,
+                        itemCount: fCityList.length,
+                        itemBuilder: (context, index) {
+                          return ForecastCard(
+                            date: fDateList[index],
+                            temp: fTempList[index],
+                          );
+                        },
+                      )
+                    ),
+                  ],
+                )
+              ],
+            ),
           ),
         ),
       ),
@@ -673,42 +681,43 @@ class _GetLocationState extends State<GetLocationWidget> {
       return SizedBox(width: 0,);
     }
   }
-  Widget pleaseRef() {
+  // Widget pleaseRef() {
+  //
+  //   if (locForecastWeather.list.elementAt(0).toString() == "null") {
+  //     return Text(
+  //       " \n Please Pull Down to Refresh",
+  //       style: TextStyle(
+  //         color: Colors.white,
+  //         fontSize: 18,
+  //       ),
+  //     );
+  //   }
+  //   else {
+  //     return SizedBox(width: 0,);
+  //   }
+  //
+  // }
 
-    if (fCity.toString() == "null") {
-      return Text(
-        " \n Please Pull Down to Refresh",
-        style: TextStyle(
-          color: Colors.white,
-          fontSize: 18,
-        ),
-      );
-    }
-    else {
-      return SizedBox(width: 0,);
-    }
-
-  }
-  Widget minTemp() {
-    if (fMinTemp.runtimeType == int){
-      return Text(
-        fMinTemp != null ? fMinTemp.toString() + "\u00B0" : "-",
-        style: TextStyle(
-          color: Colors.white,
-          fontSize: MediaQuery.of(context).size.height/37,
-        ),
-      );
-    }
-    else if (fMinTemp.runtimeType == double) {
-      return Text(
-        fMinTemp != null ? fMinTemp.round().toString() + "\u00B0" : "-",
-        style: TextStyle(
-          color: Colors.white,
-          fontSize: MediaQuery.of(context).size.height/37,
-        ),
-      );
-    }
-  }
+  // Widget minTemp() {
+  //   if (fMinTemp.runtimeType == int){
+  //     return Text(
+  //       fMinTemp != null ? fMinTemp.toString() + "\u00B0" : "-",
+  //       style: TextStyle(
+  //         color: Colors.white,
+  //         fontSize: MediaQuery.of(context).size.height/37,
+  //       ),
+  //     );
+  //   }
+  //   else if (fMinTemp.runtimeType == double) {
+  //     return Text(
+  //       fMinTemp != null ? fMinTemp.round().toString() + "\u00B0" : "-",
+  //       style: TextStyle(
+  //         color: Colors.white,
+  //         fontSize: MediaQuery.of(context).size.height/37,
+  //       ),
+  //     );
+  //   }
+  // }
   Widget maxTemp() {
     if (fMaxTemp.runtimeType == int){
       return Text(
@@ -1926,39 +1935,41 @@ class _GetLocationState extends State<GetLocationWidget> {
 
 class ForecastCard extends StatelessWidget {
 
-  final String date;
-  final String icon;
-  final double temp;
+  final date;
+  final temp;
 
-  const ForecastCard({Key key, @required this.date, @required this.temp, @required this.icon}) : super(key: key);
+  const ForecastCard({Key key, this.date, this.temp}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      height: MediaQuery.of(context).size.height/6,
-      width: MediaQuery.of(context).size.width/4,
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(5),
-        color: Theme.of(context).primaryColor,
-      ),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-        children: [
-          Text(date != null ? date.toString() : "",
-            style: myTextStyle.copyWith(
-              fontStyle: FontStyle.italic,
-              fontSize: 15,
+    return Padding(
+      padding: EdgeInsets.symmetric(vertical: 7, horizontal: 10),
+      child: Container(
+        height: MediaQuery.of(context).size.height/6,
+        width: MediaQuery.of(context).size.width/10,
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(5),
+          color: Theme.of(context).primaryColor,
+        ),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          children: [
+            Text(date != null ? date.toString() : "",
+              style: myTextStyle.copyWith(
+                fontStyle: FontStyle.italic,
+                fontSize: 15,
+              ),
             ),
-          ),
-          Image.asset('assets/icons/$icon.png',
-            height: MediaQuery.of(context).size.height/14,
-            width: MediaQuery.of(context).size.width/5,
-          ),
-          Text(
-            temp.toString(),
-            style: myTextStyle,
-          ),
-        ],
+            // Image.asset('assets/icons/$icon.png',
+            //   height: MediaQuery.of(context).size.height/14,
+            //   width: MediaQuery.of(context).size.width/5,
+            // ),
+            Text(
+              temp.toString(),
+              style: myTextStyle,
+            ),
+          ],
+        ),
       ),
     );
   }
