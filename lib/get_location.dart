@@ -549,7 +549,7 @@ class LoaderWidget extends StatelessWidget {
     return Shimmer.fromColors(
       child: SingleChildScrollView(
         child: Padding(
-          padding: EdgeInsets.all(15),
+          padding: EdgeInsets.symmetric(horizontal: 15, vertical: 5),
           child: Column(
             children: [
               Column(
