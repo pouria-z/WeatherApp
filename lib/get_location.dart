@@ -4,13 +4,9 @@ import 'package:flutter/services.dart';
 import 'package:http/http.dart';
 import 'dart:convert';
 import 'package:weather_app/home.dart';
-import 'package:flutter_typeahead/flutter_typeahead.dart';
-import 'package:weather_app/all_cities.dart';
 import 'package:pull_to_refresh/pull_to_refresh.dart';
-import 'package:weather_app/info.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:weather_app/widgets.dart';
-import 'package:shimmer/shimmer.dart';
 
 class GetLocationWidget extends StatefulWidget {
   @override
@@ -19,20 +15,18 @@ class GetLocationWidget extends StatefulWidget {
 
 class _GetLocationState extends State<GetLocationWidget> {
 
+  RefreshController refreshController =
+  RefreshController(initialRefresh: false);
+
+  ///getLoc variables
   var lat;
   var lon;
-  // LocCurrentWeather locCurrentWeather;
-  // ForecastItems forecastItems;
-  // LocForecastWeather locForecastWeather;
-
-
-  ///current variables
+  ///currentWeather variables
   var icon;
   var temp;
   var desc;
   var wind;
   var code;
-
   ///forecast variables
   var fCity;
   var fIcon;
@@ -47,13 +41,7 @@ class _GetLocationState extends State<GetLocationWidget> {
   List fMaxTempList = [];
   List fDateList = [];
 
-  bool showClear = false;
-
-  RefreshController refreshController =
-  RefreshController(initialRefresh: false);
-
-
-  Future loc() async {
+  Future getLocation() async {
     Position position;
     try {
       position =
@@ -101,7 +89,7 @@ class _GetLocationState extends State<GetLocationWidget> {
           fIcon=item['weather']['icon'];
           fTemp=item['temp'].round();
           fMinTemp=json['data'][0]['min_temp'].round();
-          fMaxTemp=json['data'][0]['max_temp'].round();
+          fMaxTemp=json['data'][0]['max_temp'].round().toInt()+1;
           fDate=item['datetime'];
           fCityList.add(fCity);
           fIconList.add(fIcon);
@@ -150,16 +138,22 @@ class _GetLocationState extends State<GetLocationWidget> {
         code.toString() == "233"){
       return 'assets/images/thunderstorm.jpg';
     }
+    else {
+      return null;
+    }
   }
 
   Future<bool> exitApp() {
-    SystemNavigator.pop();
+    return SystemNavigator.pop();
   }
 
 @override
   void initState() {
     super.initState();
-    loc().then((value) => currentWeather().then((value) => forecastWeather()));
+    getLocation()
+        .then((value) => currentWeather()
+        .then((value) => forecastWeather(),
+    ));
   }
 
   @override
@@ -167,529 +161,204 @@ class _GetLocationState extends State<GetLocationWidget> {
     return WillPopScope(
       onWillPop: exitApp,
       child: Scaffold(
-        appBar: AppBar(
-          toolbarHeight: 0,
-          backgroundColor: Theme.of(context).primaryColor,
-        ),
-        backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-        body: SmartRefresher(
-          onRefresh:() {
-            loc();
-            currentWeather();
-            forecastWeather();
-          },
-          controller: refreshController,
-          child: SingleChildScrollView(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 15, vertical: 15),
-                  child: Container(
-                    width: MediaQuery.of(context).size.width,
-                    height: MediaQuery.of(context).size.height/15,
-                    decoration: BoxDecoration(
-                      color: Theme.of(context).primaryColor,
-                      borderRadius: BorderRadius.circular(7),
-                      boxShadow: [
-                        BoxShadow(
-                          blurRadius: 7,
-                          spreadRadius: 1,
-                          color: Colors.black87,
-                          offset: Offset.fromDirection(4,-2)
-                        ),
-                      ]
-                    ),
-                    child: Row(
+        body: SafeArea(
+          child: SmartRefresher(
+            onRefresh:() {
+              getLocation();
+              currentWeather();
+              forecastWeather();
+            },
+            controller: refreshController,
+            child: SingleChildScrollView(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  SearchBox(
+                    sizedBoxWidth: 0.0,
+                    offset: -57.5,
+                    locIcon: Container(),
+                    onSuggestionSelected: (suggestion){
+                      cityname.text = suggestion;
+                      Navigator.push(context,
+                          CupertinoPageRoute(builder: (context) => Home()),
+                      );
+                    },
+                    onSubmitted: (value) {
+                      if (cityname.text.isEmpty){
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text("Please enter city name"),
+                          ),
+                        );
+                      }
+                      else {
+                        return Navigator.push(context,
+                          CupertinoPageRoute(builder: (context) => Home()),
+                        );
+                      }
+                    },
+                  ),
+                  fDate == null ? LoaderWidget() : Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 15, vertical: 5),
+                    child: Column(
                       children: [
-                        SizedBox(width: 10),
-                        IconButton(icon: Icon(Icons.info_outline_rounded,
-                          color: Colors.white,
-                          size: MediaQuery.of(context).size.height/35,
-                         ),
-                          onPressed: () {
-                          Navigator.push(context, CupertinoPageRoute(
-                            builder: (context) => Info(),
-                          ));
-                         }
+                        Container(
+                          child: Stack(
+                            children: [
+                              ClipRRect(
+                                borderRadius: BorderRadius.circular(20),
+                                child: Image.asset(
+                                  imageAsset(),
+                                  height: MediaQuery.of(context).size.height/3,
+                                  width: MediaQuery.of(context).size.width,
+                                  fit: BoxFit.cover,
+                                ),
+                              ),
+                              Column(
+                                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                                children: [
+                                  Text(
+                                    fCity != null ? fCity.toString() : "Loading",
+                                    style: myTextStyle.copyWith(
+                                      fontSize: MediaQuery.of(context).size.height/22,
+                                      fontWeight: FontWeight.w700,
+                                      color: imageAsset()=='assets/images/snow.jpg'
+                                          || imageAsset()=='assets/images/mist.jpg'
+                                          ? Colors.black
+                                          : Colors.white,
+                                    ),
+                                  ),
+                                  Text(
+                                    temp != null ? " "+temp.toString()+"°" : "",
+                                    style: myTextStyle.copyWith(
+                                      fontSize: MediaQuery.of(context).size.width/6.5,
+                                      fontWeight: FontWeight.w700,
+                                      color: imageAsset()=='assets/images/snow.jpg'
+                                          || imageAsset()=='assets/images/mist.jpg'
+                                          ? Colors.black
+                                          : Colors.white,
+                                    ),
+                                  ),
+                                  Image.asset('assets/icons/$icon.png',
+                                    height: MediaQuery.of(context).size.height/10,
+                                    width: MediaQuery.of(context).size.width/4,
+                                  ),
+                                  Text(
+                                    desc != null ? desc.toString() : "Loading",
+                                    style: TextStyle(
+                                      color: imageAsset()=='assets/images/snow.jpg'
+                                          || imageAsset()=='assets/images/mist.jpg'
+                                          ? Colors.black
+                                          : Colors.white,
+                                      fontSize: MediaQuery.of(context).size.height/45,
+                                      fontWeight: FontWeight.w900,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ],
+                            alignment: Alignment.center,
+                          ),
+                          decoration: BoxDecoration(
+                            color: Theme.of(context).primaryColor,
+                            borderRadius: BorderRadius.circular(20)
+                          ),
+                          height: MediaQuery.of(context).size.height/3,
+                          width: MediaQuery.of(context).size.width,
                         ),
                         SizedBox(
-                          width: 10,
+                          height: MediaQuery.of(context).size.height/40,
                         ),
-                        Expanded(
-                          child: TypeAheadField(
-                            suggestionsCallback: (String pattern) async {
-                              return CitiesService.cities.where((item) => item.
-                              toLowerCase().startsWith(pattern.toLowerCase())).toList();
-                            },
-                            itemBuilder: (context, suggestion){
-                              return ListTile(
-                                leading: Icon(Icons.search_rounded,
-                                  color: Colors.white,
-                                  size: MediaQuery.of(context).size.height/35,
-                                ),
-                                title: Text(suggestion,
-                                  style: TextStyle(
-                                    color: Colors.white,
-                                  ),
-                                ),
+                        ListTile(
+                          leading: Image.asset('assets/icons/mintemp.png',
+                            width: MediaQuery.of(context).size.width/12,
+                            height: MediaQuery.of(context).size.height/25,
+                          ),
+                          title: Text(
+                            "Min Temperature",
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: MediaQuery.of(context).size.height/50,
+                            ),
+                          ),
+                          trailing: Text(
+                            fMinTemp != null ? fMinTemp.toString()+"°" : "",
+                            style: myTextStyle.copyWith(
+                              fontSize: MediaQuery.of(context).size.height/50,
+                            ),
+                          ),
+                        ),
+                        ListTile(
+                          leading: Image.asset('assets/icons/maxtemp.png',
+                            width: MediaQuery.of(context).size.width/12,
+                            height: MediaQuery.of(context).size.height/20,
+                          ),
+                          title: Text(
+                            "Max Temperature",
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: MediaQuery.of(context).size.height/50,
+                            ),
+                          ),
+                          trailing: Text(
+                            fMaxTemp != null ? fMaxTemp.toString()+"°" : "",
+                            style: myTextStyle.copyWith(
+                              fontSize: MediaQuery.of(context).size.height/50,
+                            ),
+                          ),
+                        ),
+                        ListTile(
+                          leading: Image.asset('assets/icons/wind.png',
+                            width: MediaQuery.of(context).size.width/12,
+                            height: MediaQuery.of(context).size.height/25,
+                          ),
+                          title: Text(
+                            "Wind Speed",
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: MediaQuery.of(context).size.height/50,
+                            ),
+                          ),
+                          trailing: Text(
+                            wind != null ? wind.toString()+" km/h" : "",
+                            style: myTextStyle.copyWith(
+                              fontSize: MediaQuery.of(context).size.height/50,
+                            ),
+                          ),
+                        ),
+                        SizedBox(
+                          height: MediaQuery.of(context).size.height/90,
+                        ),
+                        Divider(
+                          thickness: 0.2,
+                          color: Colors.white,
+                        ),
+                        SizedBox(
+                          height: MediaQuery.of(context).size.height/40,
+                        ),
+                        SizedBox(
+                          height: MediaQuery.of(context).size.height/4.5,
+                          child: ListView.builder(
+                            scrollDirection: Axis.horizontal,
+                            physics: BouncingScrollPhysics(),
+                            shrinkWrap: true,
+                            itemCount: fCityList.length,
+                            itemBuilder: (context, index) {
+                              return ForecastCard(
+                                date: fDateList[index],
+                                temp: fTempList[index],
+                                icon: fIconList[index],
                               );
                             },
-                            transitionBuilder: (context, suggestionsBox, controller) {
-                              if (cityname.text.length >= 3){
-                                return suggestionsBox;
-                              }
-                              else {
-                                return null;
-                              }
-                            },
-                            onSuggestionSelected: (suggestion){
-                              cityname.text = suggestion;
-                              Navigator.push(context, CupertinoPageRoute(
-                                builder: (context) => Home(),
-                              ));
-                            },
-                            noItemsFoundBuilder: (context) => ListTile(
-                              title: Text(
-                                "No Item Found!",
-                                style: TextStyle(
-                                  color: Colors.white,
-                                ),
-                              ),
-                              leading: Icon(Icons.dangerous,
-                                color: Colors.white,
-                                size: MediaQuery.of(context).size.height/35,
-                              ),
-                            ),
-                            hideSuggestionsOnKeyboardHide: true,
-                            suggestionsBoxDecoration: SuggestionsBoxDecoration(
-                                borderRadius: BorderRadius.only(bottomRight: Radius.circular(15), bottomLeft: Radius.circular(15)),
-                                color: Theme.of(context).primaryColor,
-                                elevation: 0,
-                                offsetX: -69,
-                                constraints: BoxConstraints.tightFor(
-                                  width: MediaQuery.of(context).size.width,
-                                )
-                            ),
-                            textFieldConfiguration: TextFieldConfiguration(
-                              textCapitalization: TextCapitalization.words,
-                              style: TextStyle(
-                                  color: Colors.white
-                              ),
-                              cursorColor: Colors.white,
-                              controller: cityname,
-                              textInputAction: TextInputAction.search,
-                              decoration: InputDecoration(
-                                icon: Icon(Icons.search_rounded,
-                                  color: Colors.white,
-                                  size: MediaQuery.of(context).size.height/35,
-                                ),
-                                focusedBorder: InputBorder.none,
-                                enabledBorder: InputBorder.none,
-                                hintText: "Search",
-                                hintStyle: TextStyle(
-                                  color: Colors.white24,
-                                  fontSize: MediaQuery.of(context).size.height/50,
-                                ),
-                                //suffixIcon:
-                              ),
-                              onChanged: (value) {
-                                setState(() {
-                                  showClear=true;
-                                });
-                                if(value.toString()==""){
-                                  setState(() {
-                                    showClear=false;
-                                  });
-                                }
-                              },
-                              onSubmitted: (value) {
-                                if (cityname.text.isEmpty){
-                                  showDialog(context: context,
-                                    builder: (BuildContext context) => AlertDialog(
-                                      title: Text(
-                                        "Error!",
-                                        style: TextStyle(
-                                          color: Colors.white,
-                                        ),
-                                      ),
-                                      content: Text(
-                                        "Please Enter City Name!",
-                                        style: TextStyle(
-                                          color: Colors.white,
-                                        ),
-                                      ),
-                                      actions: [
-                                        TextButton(onPressed: () {
-                                          Navigator.pop(context);
-                                          }, child: Text(
-                                          "OK",
-                                          style: TextStyle(
-                                            color: Colors.white,
-                                          ),
-                                        ),
-                                        ),
-                                      ],
-                                    ),
-                                  );
-                                }
-                                else {
-                                  return Navigator.push(context, CupertinoPageRoute(
-                                    builder: (context) => Home(),
-                                  ));
-                                }
-                              },
-                            ),
-                            suggestionsBoxVerticalOffset: 6,
                           ),
                         ),
-                        showClear==true ? IconButton(
-                          icon: Icon(Icons.clear_rounded),
-                          onPressed: () {
-                            cityname.clear();
-                            setState(() {
-                              showClear=false;
-                            });
-                          },
-                        ) : Container(),
                       ],
                     ),
-                  ),
-                ),
-                fDate == null ? LoaderWidget() : Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 15, vertical: 5),
-                  child: Column(
-                    children: [
-                      Container(
-                        child: Stack(
-                          children: [
-                            ClipRRect(
-                              borderRadius: BorderRadius.circular(20),
-                              child: Image.asset(
-                                imageAsset(),
-                                height: MediaQuery.of(context).size.height/3,
-                                width: MediaQuery.of(context).size.width,
-                                fit: BoxFit.cover,
-                              ),
-                            ),
-                            Column(
-                              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                              children: [
-                                Text(
-                                  fCity != null ? fCity.toString() : "Loading",
-                                  style: myTextStyle.copyWith(
-                                    fontSize: MediaQuery.of(context).size.height/22,
-                                    fontWeight: FontWeight.w700,
-                                    color: imageAsset()=='assets/images/snow.jpg'
-                                        || imageAsset()=='assets/images/mist.jpg'
-                                        ? Colors.black
-                                        : Colors.white,
-                                  ),
-                                ),
-                                Text(
-                                  temp != null ? " "+temp.toString()+"°" : "",
-                                  style: myTextStyle.copyWith(
-                                    fontSize: MediaQuery.of(context).size.width/6.5,
-                                    fontWeight: FontWeight.w700,
-                                    color: imageAsset()=='assets/images/snow.jpg'
-                                        || imageAsset()=='assets/images/mist.jpg'
-                                        ? Colors.black
-                                        : Colors.white,
-                                  ),
-                                ),
-                                Image.asset('assets/icons/$icon.png',
-                                  height: MediaQuery.of(context).size.height/10,
-                                  width: MediaQuery.of(context).size.width/4,
-                                ),
-                                Text(
-                                  desc != null ? desc.toString() : "Loading",
-                                  style: TextStyle(
-                                    color: imageAsset()=='assets/images/snow.jpg'
-                                        || imageAsset()=='assets/images/mist.jpg'
-                                        ? Colors.black
-                                        : Colors.white,
-                                    fontSize: MediaQuery.of(context).size.height/45,
-                                    fontWeight: FontWeight.w900,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ],
-                          alignment: Alignment.center,
-                        ),
-                        decoration: BoxDecoration(
-                          color: Theme.of(context).primaryColor,
-                          borderRadius: BorderRadius.circular(20)
-                        ),
-                        height: MediaQuery.of(context).size.height/3,
-                        width: MediaQuery.of(context).size.width,
-                      ),
-                      SizedBox(
-                        height: MediaQuery.of(context).size.height/40,
-                      ),
-                      ListTile(
-                        leading: Image.asset('assets/icons/mintemp.png',
-                          width: MediaQuery.of(context).size.width/12,
-                          height: MediaQuery.of(context).size.height/25,
-                        ),
-                        title: Text(
-                          "Min Temperature",
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: MediaQuery.of(context).size.height/50,
-                          ),
-                        ),
-                        trailing: Text(
-                          fMinTemp != null ? fMinTemp.toString()+"°" : "",
-                          style: myTextStyle.copyWith(
-                            fontSize: MediaQuery.of(context).size.height/50,
-                          ),
-                        ),
-                      ),
-                      ListTile(
-                        leading: Image.asset('assets/icons/maxtemp.png',
-                          width: MediaQuery.of(context).size.width/12,
-                          height: MediaQuery.of(context).size.height/20,
-                        ),
-                        title: Text(
-                          "Max Temperature",
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: MediaQuery.of(context).size.height/50,
-                          ),
-                        ),
-                        trailing: Text(
-                          fMaxTemp != null ? fMaxTemp.toString()+"°" : "",
-                          style: myTextStyle.copyWith(
-                            fontSize: MediaQuery.of(context).size.height/50,
-                          ),
-                        ),
-                      ),
-                      ListTile(
-                        leading: Image.asset('assets/icons/wind.png',
-                          width: MediaQuery.of(context).size.width/12,
-                          height: MediaQuery.of(context).size.height/25,
-                        ),
-                        title: Text(
-                          "Wind Speed",
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: MediaQuery.of(context).size.height/50,
-                          ),
-                        ),
-                        trailing: Text(
-                          wind != null ? wind.toString()+" km/h" : "",
-                          style: myTextStyle.copyWith(
-                            fontSize: MediaQuery.of(context).size.height/50,
-                          ),
-                        ),
-                      ),
-                      SizedBox(
-                        height: MediaQuery.of(context).size.height/90,
-                      ),
-                      Divider(
-                        thickness: 0.2,
-                        color: Colors.white,
-                      ),
-                      SizedBox(
-                        height: MediaQuery.of(context).size.height/40,
-                      ),
-                      /// hereeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee
-                      SizedBox(
-                        height: MediaQuery.of(context).size.height/4.5,
-                        child: ListView.builder(
-                          scrollDirection: Axis.horizontal,
-                          physics: BouncingScrollPhysics(),
-                          shrinkWrap: true,
-                          itemCount: fCityList.length,
-                          itemBuilder: (context, index) {
-                            return ForecastCard(
-                              date: fDateList[index],
-                              temp: fTempList[index],
-                              icon: fIconList[index],
-                            );
-                          },
-                        ),
-                      ),
-                    ],
-                  ),
-                )
-              ],
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-
-  // ignore: non_constant_identifier_names
-  Widget Clear() {
-
-    if (cityname.selection.isValid) {
-      return IconButton(icon: Icon(Icons.clear_rounded,
-        color: Colors.white,
-      ),
-        onPressed: () => cityname.text = "",
-      );
-    }
-    else {
-      return SizedBox(width: 0,);
-    }
-  }
-
-}
-
-class LoaderWidget extends StatelessWidget {
-  const LoaderWidget({
-    Key key,
-  }) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return Shimmer.fromColors(
-      child: SingleChildScrollView(
-        child: Padding(
-          padding: EdgeInsets.symmetric(horizontal: 15, vertical: 5),
-          child: Column(
-            children: [
-              Column(
-                children: [
-                  Container(
-                    height: MediaQuery.of(context).size.height/3,
-                    width: MediaQuery.of(context).size.width,
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(20),
-                      color: Colors.white,
-                    ),
-                  ),
-                  SizedBox(
-                    height: MediaQuery.of(context).size.height/40,
-                  ),
-                  ListTile(
-                    leading: Container(
-                      height: 25,
-                      width: 25,
-                      decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(20)
-                      ),
-                    ),
-                    title: Container(
-                      height: 5,
-                      decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(30)
-                      ),
-                    ),
-                    trailing: Container(height: 2, width: 10, color: Colors.white),
-                  ),
-                  ListTile(
-                    leading: Container(
-                      height: 25,
-                      width: 25,
-                      decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(20)
-                      ),
-                    ),
-                    title: Container(
-                      height: 5,
-                      decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(30)
-                      ),
-                    ),
-                    trailing: Container(height: 2, width: 10, color: Colors.white),
-                  ),
-                  ListTile(
-                    leading: Container(
-                      height: 25,
-                      width: 25,
-                      decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(20)
-                      ),
-                    ),
-                    title: Container(
-                      height: 5,
-                      decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(30)
-                      ),
-                    ),
-                    trailing: Container(height: 2, width: 10, color: Colors.white),
-                  ),
-                  SizedBox(
-                    height: MediaQuery.of(context).size.height/90,
-                  ),
-                  Divider(
-                    thickness: 0.2,
-                    color: Colors.white,
-                  ),
-                  SizedBox(
-                    height: MediaQuery.of(context).size.height/40,
-                  ),
-                  SizedBox(
-                    height: MediaQuery.of(context).size.height/4.5,
-                    child: ListView.builder(
-                      scrollDirection: Axis.horizontal,
-                      physics: BouncingScrollPhysics(),
-                      shrinkWrap: true,
-                      itemCount: 16,
-                      itemBuilder: (context, index) {
-                        return ForecastCard(icon: 'c01n',);
-                      },
-                    ),
-                  ),
+                  )
                 ],
               ),
-            ],
+            ),
           ),
-        ),
-      ),
-      baseColor: Theme.of(context).primaryColor,
-      highlightColor: Theme.of(context).scaffoldBackgroundColor,
-    );
-  }
-}
-
-class ForecastCard extends StatelessWidget {
-
-  final date;
-  final temp;
-  final icon;
-
-  const ForecastCard({Key key, this.date, this.temp, this.icon}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: EdgeInsets.symmetric(horizontal: 10),
-      child: Container(
-        width: MediaQuery.of(context).size.width/3,
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(15),
-          color: Theme.of(context).primaryColor,
-        ),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Text(date != null ? date.toString() : "",
-              style: myTextStyle.copyWith(
-                fontStyle: FontStyle.italic,
-                fontSize: 15,
-              ),
-            ),
-            Image.asset(
-              'assets/icons/$icon.png',
-              width: MediaQuery.of(context).size.width / 5,
-              height: MediaQuery.of(context).size.height / 10,
-            ),
-            Text(
-              temp.toString()+"°",
-              style: myTextStyle,
-            ),
-          ],
         ),
       ),
     );
