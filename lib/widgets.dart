@@ -26,7 +26,6 @@ class LocCurrentWeather {
   final wind;
   final code;
   LocCurrentWeather(this.icon, this.temp, this.desc, this.wind, this.code);
-
 }
 
 class LoaderWidget extends StatelessWidget {
@@ -37,6 +36,7 @@ class LoaderWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Shimmer.fromColors(
+      direction: ShimmerDirection.ltr,
       child: SingleChildScrollView(
         child: Padding(
           padding: EdgeInsets.symmetric(horizontal: 15, vertical: 5),
@@ -143,7 +143,7 @@ class LoaderWidget extends StatelessWidget {
   }
 }
 
-class ForecastCard extends StatelessWidget {
+class ForecastCard extends StatefulWidget {
 
   final date;
   final temp;
@@ -151,6 +151,10 @@ class ForecastCard extends StatelessWidget {
 
   const ForecastCard({Key key, this.date, this.temp, this.icon}) : super(key: key);
 
+  @override
+  _ForecastCardState createState() => _ForecastCardState();
+}
+class _ForecastCardState extends State<ForecastCard> {
   @override
   Widget build(BuildContext context) {
     return Padding(
@@ -164,23 +168,62 @@ class ForecastCard extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Text(date != null ? date.toString() : "",
+            Text(widget.date != null ? widget.date.toString() : "",
               style: myTextStyle.copyWith(
                 fontStyle: FontStyle.italic,
                 fontSize: 15,
               ),
             ),
             Image.asset(
-              'assets/icons/$icon.png',
+              'assets/icons/${widget.icon}.png',
               width: MediaQuery.of(context).size.width / 5,
               height: MediaQuery.of(context).size.height / 10,
             ),
             Text(
-              temp.toString()+"°",
+              widget.temp.toString()+"°",
               style: myTextStyle,
             ),
           ],
         ),
+      ),
+    );
+  }
+}
+
+class ForecastCardList extends StatefulWidget {
+  const ForecastCardList({
+    Key key,
+    @required this.fCityList,
+    @required this.fDateList,
+    @required this.fTempList,
+    @required this.fIconList,
+  }) : super(key: key);
+
+  final List fCityList;
+  final List fDateList;
+  final List fTempList;
+  final List fIconList;
+
+  @override
+  _ForecastCardListState createState() => _ForecastCardListState();
+}
+class _ForecastCardListState extends State<ForecastCardList> {
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      height: MediaQuery.of(context).size.height/4.5,
+      child: ListView.builder(
+        scrollDirection: Axis.horizontal,
+        physics: BouncingScrollPhysics(),
+        shrinkWrap: true,
+        itemCount: widget.fCityList.length,
+        itemBuilder: (context, index) {
+          return ForecastCard(
+            date: widget.fDateList[index],
+            temp: widget.fTempList[index],
+            icon: widget.fIconList[index],
+          );
+        },
       ),
     );
   }
@@ -341,12 +384,189 @@ class _SearchBoxState extends State<SearchBox> {
   }
 }
 
+class ListTiles extends StatefulWidget {
 
+  final minTemp;
+  final maxTemp;
+  final wind;
 
+  const ListTiles({Key key, this.minTemp, this.maxTemp,
+    this.wind}) : super(key: key);
 
+  @override
+  _ListTilesState createState() => _ListTilesState();
+}
+class _ListTilesState extends State<ListTiles> {
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        SizedBox(
+          height: MediaQuery.of(context).size.height/40,
+        ),
+        ListTile(
+          leading: Image.asset('assets/icons/mintemp.png',
+            width: MediaQuery.of(context).size.width/12,
+            height: MediaQuery.of(context).size.height/25,
+          ),
+          title: Text(
+            "Min Temperature",
+            style: TextStyle(
+              color: Colors.white,
+              fontSize: MediaQuery.of(context).size.height/50,
+            ),
+          ),
+          trailing: Text(
+            widget.minTemp,
+            style: myTextStyle.copyWith(
+              fontSize: MediaQuery.of(context).size.height/50,
+            ),
+          ),
+        ),
+        ListTile(
+          leading: Image.asset('assets/icons/maxtemp.png',
+            width: MediaQuery.of(context).size.width/12,
+            height: MediaQuery.of(context).size.height/20,
+          ),
+          title: Text(
+            "Max Temperature",
+            style: TextStyle(
+              color: Colors.white,
+              fontSize: MediaQuery.of(context).size.height/50,
+            ),
+          ),
+          trailing: Text(
+            widget.maxTemp,
+            style: myTextStyle.copyWith(
+              fontSize: MediaQuery.of(context).size.height/50,
+            ),
+          ),
+        ),
+        ListTile(
+          leading: Image.asset('assets/icons/wind.png',
+            width: MediaQuery.of(context).size.width/12,
+            height: MediaQuery.of(context).size.height/25,
+          ),
+          title: Text(
+            "Wind Speed",
+            style: TextStyle(
+              color: Colors.white,
+              fontSize: MediaQuery.of(context).size.height/50,
+            ),
+          ),
+          trailing: Text(
+            widget.wind,
+            style: myTextStyle.copyWith(
+              fontSize: MediaQuery.of(context).size.height/50,
+            ),
+          ),
+        ),
+        SizedBox(
+          height: MediaQuery.of(context).size.height/90,
+        ),
+        Divider(
+          thickness: 0.2,
+          color: Colors.white,
+        ),
+        SizedBox(
+          height: MediaQuery.of(context).size.height/40,
+        ),
+      ],
+    );
+  }
+}
 
+class CurrentWeatherWidget extends StatefulWidget {
 
+  final String imagePath;
+  final String cityName;
+  final temperature;
+  final String iconPath;
+  final String description;
 
+  const CurrentWeatherWidget({Key key,
+    @required this.imagePath,
+    @required this.cityName,
+    @required this.temperature,
+    @required this.iconPath,
+    @required this.description,
+  }) : super(key: key);
+
+  @override
+  _CurrentWeatherWidgetState createState() => _CurrentWeatherWidgetState();
+}
+class _CurrentWeatherWidgetState extends State<CurrentWeatherWidget> {
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      child: Stack(
+        children: [
+          ClipRRect(
+            borderRadius: BorderRadius.circular(20),
+            child: Image.asset(
+              widget.imagePath,
+              height: MediaQuery.of(context).size.height/3,
+              width: MediaQuery.of(context).size.width,
+              fit: BoxFit.cover,
+            ),
+          ),
+          Column(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: [
+              Text(
+                widget.cityName != null ? widget.cityName.toString() : "Loading",
+                style: myTextStyle.copyWith(
+                  fontSize: MediaQuery.of(context).size.height/22,
+                  fontWeight: FontWeight.w700,
+                  color: widget.imagePath=='assets/images/snow.jpg'
+                      || widget.imagePath=='assets/images/mist.jpg'
+                      ? Colors.black
+                      : Colors.white,
+                ),
+              ),
+              Text(
+                widget.temperature != null ? " "+widget.temperature.toString()+"°" : "",
+                style: myTextStyle.copyWith(
+                  fontSize: MediaQuery.of(context).size.width/6.5,
+                  fontWeight: FontWeight.w700,
+                  color: widget.imagePath=='assets/images/snow.jpg'
+                      || widget.imagePath=='assets/images/mist.jpg'
+                      ? Colors.black
+                      : Colors.white,
+                ),
+              ),
+              Image.asset('assets/icons/${widget.iconPath.toString()}.png',
+                height: MediaQuery.of(context).size.height/10,
+                width: MediaQuery.of(context).size.width/4,
+              ),
+              Text(
+                widget.description != null ? widget.description.toString() : "Loading",
+                style: TextStyle(
+                  color: widget.imagePath=='assets/images/snow.jpg'
+                      || widget.imagePath=='assets/images/mist.jpg'
+                      ? Colors.black
+                      : Colors.white,
+                  fontSize: MediaQuery.of(context).size.height/45,
+                  fontWeight: FontWeight.w900,
+                  backgroundColor: widget.imagePath=='assets/images/snow.jpg'
+                      ? Colors.white38
+                      : Colors.transparent,
+                ),
+              ),
+            ],
+          ),
+        ],
+        alignment: Alignment.center,
+      ),
+      decoration: BoxDecoration(
+          color: Theme.of(context).primaryColor,
+          borderRadius: BorderRadius.circular(20)
+      ),
+      height: MediaQuery.of(context).size.height/3,
+      width: MediaQuery.of(context).size.width,
+    );
+  }
+}
 
 
 

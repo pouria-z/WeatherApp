@@ -6,6 +6,8 @@ import 'package:http/http.dart';
 import 'package:weather_app/get_location.dart';
 import 'package:pull_to_refresh/pull_to_refresh.dart';
 import 'package:weather_app/widgets.dart';
+import 'package:weather_app/api_key.dart';
+import 'package:intl/intl.dart';
 
 class Home extends StatefulWidget {
   @override
@@ -26,6 +28,7 @@ class _HomeState extends State<Home> {
   var fTemp;
   var fMinTemp;
   var fMaxTemp;
+  var timestamp;
   var fDate;
   List fCityList = [];
   List fIconList = [];
@@ -38,9 +41,10 @@ class _HomeState extends State<Home> {
   RefreshController(initialRefresh: false);
 
   Future currentWeather() async {
-    if (cityname.text == "Montreal" || cityname.text == "Montréal" || cityname.
-    text == "Vancouver" || cityname.text == "ونکوور"){
-      var url = "https://api.weatherbit.io/v2.0/current?city=${cityname.text}&country=CA&key=bbdea9bfe56d427f9a8e2a35eea23d73";
+      var url = cityname.text == "Montreal" || cityname.text == "Montréal" || cityname.
+      text == "Vancouver" || cityname.text == "ونکوور" || cityname.text == "Toronto"
+          ? "https://api.weatherbit.io/v2.0/current?city=${cityname.text}&country=CA&key=$apiKey"
+          : "https://api.weatherbit.io/v2.0/current?city=${cityname.text}&key=$apiKey";
       Response response = await get(url);
       var json = jsonDecode(response.body);
       setState(() {
@@ -53,41 +57,26 @@ class _HomeState extends State<Home> {
         );
       });
       _refreshController.refreshCompleted();
-    }
-    else {
-      var url = "https://api.weatherbit.io/v2.0/current?city=${cityname.text}&key=bbdea9bfe56d427f9a8e2a35eea23d73";
-      Response response = await get(url);
-      var json = jsonDecode(response.body);
-      setState(() {
-        LocCurrentWeather(
-          icon=json['data'][0]['weather']['icon'],
-          temp=json['data'][0]['temp'].round(),
-          desc=json['data'][0]['weather']['description'],
-          wind=json['data'][0]['wind_spd'].round(),
-          code=json['data'][0]['weather']['code'],
-        );
-      });
-      _refreshController.refreshCompleted();
-    }
   }
 
-  Future getWeather() async {
-    if (cityname.text == "Montreal" || cityname.text == "Montréal" || cityname.
-    text == "Vancouver" || cityname.text == "ونکوور") {
-      var url = "https://api.weatherbit.io/v2.0/forecast/daily?city=${cityname.
-      text}&country=CA&key=bbdea9bfe56d427f9a8e2a35eea23d73";
-
+  Future forecastWeather() async {
+    var url = cityname.text == "Montreal" || cityname.text == "Montréal" || cityname.
+    text == "Vancouver" || cityname.text == "ونکوور"
+        ? "https://api.weatherbit.io/v2.0/forecast/daily?city=${cityname.text}&country=CA&key=$apiKey"
+        : "https://api.weatherbit.io/v2.0/forecast/daily?city=${cityname.text}&key=$apiKey";
       Response response = await get(url);
       var json = jsonDecode(response.body);
-
       setState(() {
         for (var item in json['data']) {
           fCity = json['city_name'];
           fIcon = item['weather']['icon'];
           fTemp = item['temp'].round();
-          fMinTemp = json['data'][0]['min_temp'].round();
-          fMaxTemp = json['data'][0]['max_temp'].round().toInt() + 1;
-          fDate = item['datetime'];
+          fMinTemp = json['data'][0]['min_temp'].round().toInt() - 2;
+          fMaxTemp = json['data'][0]['max_temp'].round().toInt() + 2;
+          timestamp = item['ts'];
+          var time = DateTime.fromMillisecondsSinceEpoch(timestamp * 1000);
+          final DateFormat formatter = DateFormat('EEEE');
+          fDate = formatter.format(time);
           fCityList.add(fCity);
           fIconList.add(fIcon);
           fTempList.add(fTemp);
@@ -97,31 +86,6 @@ class _HomeState extends State<Home> {
         }
       });
       _refreshController.refreshCompleted();
-    }
-    else {
-      var url = "https://api.weatherbit.io/v2.0/forecast/daily?city=${cityname
-          .text}&key=bbdea9bfe56d427f9a8e2a35eea23d73";
-      Response response = await get(url);
-      var json = jsonDecode(response.body);
-
-      setState(() {
-        for (var item in json['data']) {
-          fCity = json['city_name'];
-          fIcon = item['weather']['icon'];
-          fTemp = item['temp'].round();
-          fMinTemp = json['data'][0]['min_temp'].round();
-          fMaxTemp = json['data'][0]['max_temp'].round().toInt() + 1;
-          fDate = item['datetime'];
-          fCityList.add(fCity);
-          fIconList.add(fIcon);
-          fTempList.add(fTemp);
-          fMinTempList.add(fMinTemp);
-          fMaxTempList.add(fMaxTemp);
-          fDateList.add(fDate);
-        }
-      });
-      _refreshController.refreshCompleted();
-    }
   }
 
   String imageAsset() {
@@ -166,14 +130,16 @@ class _HomeState extends State<Home> {
 
   // ignore: missing_return
   Future<bool> onWillPop() async {
-    cityname.text = "";
-    Navigator.pop(context);
+    cityname.clear();
+    Navigator.pushReplacement(context,
+      CupertinoPageRoute(builder: (context) => GetLocationWidget()),
+    );
   }
 
   @override
   void initState() {
     super.initState();
-    getWeather().then((value) => currentWeather());
+    forecastWeather().then((value) => currentWeather());
   }
 
   @override
@@ -185,7 +151,7 @@ class _HomeState extends State<Home> {
           child: SmartRefresher(
             onRefresh:() {
               currentWeather();
-              getWeather();
+              forecastWeather();
             },
             controller: _refreshController,
             child: SingleChildScrollView(
@@ -210,7 +176,9 @@ class _HomeState extends State<Home> {
                     ),
                     onSuggestionSelected: (suggestion) {
                       cityname.text = suggestion;
-                      getWeather();
+                      Navigator.push(context,
+                        CupertinoPageRoute(builder: (context) => Home()),
+                      );
                     },
                     onSubmitted: (value) {
                       if (cityname.text.isEmpty){
@@ -221,7 +189,9 @@ class _HomeState extends State<Home> {
                         );
                       }
                       else {
-                        return getWeather();
+                        return Navigator.push(context,
+                          CupertinoPageRoute(builder: (context) => Home()),
+                        );
                       }
                     },
                   ),
@@ -229,155 +199,23 @@ class _HomeState extends State<Home> {
                     padding: EdgeInsets.symmetric(horizontal: 15, vertical: 5),
                     child: Column(
                       children: [
-                        Container(
-                          child: Stack(
-                            children: [
-                              ClipRRect(
-                                borderRadius: BorderRadius.circular(20),
-                                child: Image.asset(
-                                  imageAsset(),
-                                  height: MediaQuery.of(context).size.height/3,
-                                  width: MediaQuery.of(context).size.width,
-                                  fit: BoxFit.cover,
-                                ),
-                              ),
-                              Column(
-                                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                                children: [
-                                  Text(
-                                    fCity != null ? fCity.toString() : "Loading",
-                                    style: myTextStyle.copyWith(
-                                      fontSize: MediaQuery.of(context).size.height/22,
-                                      fontWeight: FontWeight.w700,
-                                      color: imageAsset()=='assets/images/snow.jpg'
-                                          || imageAsset()=='assets/images/mist.jpg'
-                                          ? Colors.black
-                                          : Colors.white,
-                                    ),
-                                  ),
-                                  Text(
-                                    temp != null ? " "+temp.toString()+"°" : "",
-                                    style: myTextStyle.copyWith(
-                                      fontSize: MediaQuery.of(context).size.width/6.5,
-                                      fontWeight: FontWeight.w700,
-                                      color: imageAsset()=='assets/images/snow.jpg'
-                                          || imageAsset()=='assets/images/mist.jpg'
-                                          ? Colors.black
-                                          : Colors.white,
-                                    ),
-                                  ),
-                                  Image.asset('assets/icons/$icon.png',
-                                    height: MediaQuery.of(context).size.height/10,
-                                    width: MediaQuery.of(context).size.width/4,
-                                  ),
-                                  Text(
-                                    desc != null ? desc.toString() : "Loading",
-                                    style: TextStyle(
-                                      color: imageAsset()=='assets/images/snow.jpg'
-                                          || imageAsset()=='assets/images/mist.jpg'
-                                          ? Colors.black
-                                          : Colors.white,
-                                      fontSize: MediaQuery.of(context).size.height/45,
-                                      fontWeight: FontWeight.w900,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ],
-                            alignment: Alignment.center,
-                          ),
-                          decoration: BoxDecoration(
-                              color: Theme.of(context).primaryColor,
-                              borderRadius: BorderRadius.circular(20)
-                          ),
-                          height: MediaQuery.of(context).size.height/3,
-                          width: MediaQuery.of(context).size.width,
+                        CurrentWeatherWidget(
+                          imagePath: imageAsset(),
+                          cityName: fCity,
+                          temperature: temp,
+                          iconPath: icon,
+                          description: desc,
                         ),
-                        SizedBox(
-                          height: MediaQuery.of(context).size.height/40,
+                        ListTiles(
+                          minTemp: fMinTemp != null ? fMinTemp.toString()+"°" : "",
+                          maxTemp: fMaxTemp != null ? fMaxTemp.toString()+"°" : "",
+                          wind: wind != null ? wind.toString()+" km/h" : "",
                         ),
-                        ListTile(
-                          leading: Image.asset('assets/icons/mintemp.png',
-                            width: MediaQuery.of(context).size.width/12,
-                            height: MediaQuery.of(context).size.height/25,
-                          ),
-                          title: Text(
-                            "Min Temperature",
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontSize: MediaQuery.of(context).size.height/50,
-                            ),
-                          ),
-                          trailing: Text(
-                            fMinTemp != null ? fMinTemp.toString()+"°" : "",
-                            style: myTextStyle.copyWith(
-                              fontSize: MediaQuery.of(context).size.height/50,
-                            ),
-                          ),
-                        ),
-                        ListTile(
-                          leading: Image.asset('assets/icons/maxtemp.png',
-                            width: MediaQuery.of(context).size.width/12,
-                            height: MediaQuery.of(context).size.height/20,
-                          ),
-                          title: Text(
-                            "Max Temperature",
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontSize: MediaQuery.of(context).size.height/50,
-                            ),
-                          ),
-                          trailing: Text(
-                            fMaxTemp != null ? fMaxTemp.toString()+"°" : "",
-                            style: myTextStyle.copyWith(
-                              fontSize: MediaQuery.of(context).size.height/50,
-                            ),
-                          ),
-                        ),
-                        ListTile(
-                          leading: Image.asset('assets/icons/wind.png',
-                            width: MediaQuery.of(context).size.width/12,
-                            height: MediaQuery.of(context).size.height/25,
-                          ),
-                          title: Text(
-                            "Wind Speed",
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontSize: MediaQuery.of(context).size.height/50,
-                            ),
-                          ),
-                          trailing: Text(
-                            wind != null ? wind.toString()+" km/h" : "",
-                            style: myTextStyle.copyWith(
-                              fontSize: MediaQuery.of(context).size.height/50,
-                            ),
-                          ),
-                        ),
-                        SizedBox(
-                          height: MediaQuery.of(context).size.height/90,
-                        ),
-                        Divider(
-                          thickness: 0.2,
-                          color: Colors.white,
-                        ),
-                        SizedBox(
-                          height: MediaQuery.of(context).size.height/40,
-                        ),
-                        SizedBox(
-                          height: MediaQuery.of(context).size.height/4.5,
-                          child: ListView.builder(
-                            scrollDirection: Axis.horizontal,
-                            physics: BouncingScrollPhysics(),
-                            shrinkWrap: true,
-                            itemCount: fCityList.length,
-                            itemBuilder: (context, index) {
-                              return ForecastCard(
-                                date: fDateList[index],
-                                temp: fTempList[index],
-                                icon: fIconList[index],
-                              );
-                            },
-                          ),
+                        ForecastCardList(
+                          fCityList: fCityList,
+                          fDateList: fDateList,
+                          fTempList: fTempList,
+                          fIconList: fIconList,
                         ),
                       ],
                     ),
@@ -391,3 +229,5 @@ class _HomeState extends State<Home> {
     );
   }
 }
+
+

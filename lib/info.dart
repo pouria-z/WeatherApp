@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:url_launcher/url_launcher.dart';
-import 'package:flutter_linkify/flutter_linkify.dart';
-import 'package:flutter/widgets.dart';
 import 'package:weather_app/widgets.dart';
 
 
@@ -13,26 +12,13 @@ class Info extends StatefulWidget {
 
 class _InfoState extends State<Info> {
 
-  Future<void> _onOpen(LinkableElement link) async {
-    if (await canLaunch(link.url)) {
-      await launch(link.url);
-    } else {
-      throw 'Could not launch $link';
-    }
-  }
-
-  void contactMe() async {
-    var url = "mailto:pouria.zeinalzadeh@gmail.com";
-    launch(url);
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: Text(
           "Info",
-          style: myTextStyle,
+          style: myTextStyleBold,
         ),
         centerTitle: true,
         elevation: 2,
@@ -41,53 +27,95 @@ class _InfoState extends State<Info> {
         child: Padding(
           padding: EdgeInsets.symmetric(horizontal: 15),
           child: Container(
-            height: MediaQuery.of(context).size.height/5,
+            height: MediaQuery.of(context).size.height/3,
             width: MediaQuery.of(context).size.width,
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(25),
               color: Theme.of(context).primaryColor,
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black54,
+                  spreadRadius: 1,
+                  blurRadius: 5,
+                  offset: Offset.fromDirection(10,-4)
+                ),
+              ]
             ),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 10),
-                  child: ListTile(
-                    leading: Icon(Icons.email,
-                      color: Colors.white,
-                      size: 25,
-                    ),
-                    title: Text(
-                      "Contact Me",
-                      style: myTextStyleBold,
-                    ),
-                    trailing: IconButton(
-                      icon: Icon(Icons.arrow_forward_ios_rounded,
-                        color: Colors.white,
-                        size: 20,
+            child: Center(
+              child: SingleChildScrollView(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    ListTile(
+                      leading: Icon(Icons.email),
+                      title: Text(
+                        "Contact Me",
+                        style: myTextStyleBold,
                       ),
-                      onPressed: contactMe,
-                      tooltip: "pouria.zeinalzadeh@gmail.com",
+                      trailing: IconButton(
+                        icon: Icon(Icons.arrow_forward_ios_rounded),
+                        onPressed: () {
+                          var url = "mailto:pouria.zeinalzadeh@gmail.com";
+                          launch(url);
+                        },
+                        tooltip: "pouria.zeinalzadeh@gmail.com",
+                      ),
                     ),
-                  ),
+                    ListTile(
+                      leading: Icon(Icons.star_rounded),
+                      title: Text(
+                        "Rate This App",
+                        style: myTextStyleBold,
+                      ),
+                      trailing: IconButton(
+                        icon: Icon(Icons.arrow_forward_ios_rounded),
+                        onPressed: () {
+                          var url = "https://cafebazaar.ir/app/com.weather.weather_app?l=en";
+                          launch(url);
+                        },
+                        tooltip: "CafeBazaar | WeatherApp",
+                      ),
+                    ),
+                    ListTile(
+                      leading: Icon(FontAwesomeIcons.googlePlay),
+                      title: Text(
+                        "My Other Apps",
+                        style: myTextStyleBold,
+                      ),
+                      trailing: IconButton(
+                        icon: Icon(Icons.arrow_forward_ios_rounded,
+                          color: Colors.white,
+                        ),
+                        onPressed: () {
+                          var url = "https://cafebazaar.ir/developer/413934687302?l=en";
+                          launch(url);
+                        },
+                        tooltip: "CafeBazaar | Pouria Zeinalzadeh",
+                      ),
+                    ),
+                    Text(
+                      "Using following API:",
+                      style: myTextStyle.copyWith(
+                        fontSize: 14,
+                      ),
+                    ),
+                    GestureDetector(
+                      onTap: () {
+                        var url="https://www.weatherbit.io";
+                        launch(url);
+                      },
+                      child: Text(
+                        "www.weatherbit.io",
+                        style: myTextStyle.copyWith(
+                          fontSize: 14,
+                          color: Colors.blue[700],
+                          decoration: TextDecoration.underline,
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
-                SizedBox(
-                  height: 20,
-                ),
-                Text(
-                  "Using following API:",
-                  style: myTextStyle.copyWith(
-                    fontSize: 16,
-                  ),
-                ),
-                Linkify(
-                  onOpen: _onOpen,
-                  text: "https://www.weatherbit.io",
-                  style: TextStyle(
-                    fontSize: 16,
-                  ),
-                ),
-              ],
+              ),
             ),
           ),
         ),

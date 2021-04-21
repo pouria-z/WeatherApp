@@ -7,6 +7,8 @@ import 'package:weather_app/home.dart';
 import 'package:pull_to_refresh/pull_to_refresh.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:weather_app/widgets.dart';
+import 'package:weather_app/api_key.dart';
+import 'package:intl/intl.dart';
 
 class GetLocationWidget extends StatefulWidget {
   @override
@@ -33,6 +35,7 @@ class _GetLocationState extends State<GetLocationWidget> {
   var fTemp;
   var fMinTemp;
   var fMaxTemp;
+  var timestamp;
   var fDate;
   List fCityList = [];
   List fIconList = [];
@@ -40,6 +43,8 @@ class _GetLocationState extends State<GetLocationWidget> {
   List fMinTempList = [];
   List fMaxTempList = [];
   List fDateList = [];
+
+
 
   Future getLocation() async {
     Position position;
@@ -61,7 +66,7 @@ class _GetLocationState extends State<GetLocationWidget> {
 
   Future currentWeather() async {
 
-    var url = "https://api.weatherbit.io/v2.0/current?lat=$lat&lon=$lon&key=bbdea9bfe56d427f9a8e2a35eea23d73";
+    var url = "https://api.weatherbit.io/v2.0/current?lat=$lat&lon=$lon&key=$apiKey";
     Response response = await get(url);
     var json = jsonDecode(response.body);
     setState(() {
@@ -79,7 +84,7 @@ class _GetLocationState extends State<GetLocationWidget> {
 
   Future forecastWeather() async {
 
-    var url = "https://api.weatherbit.io/v2.0/forecast/daily?lat=$lat&lon=$lon&key=bbdea9bfe56d427f9a8e2a35eea23d73";
+    var url = "https://api.weatherbit.io/v2.0/forecast/daily?lat=$lat&lon=$lon&key=$apiKey";
     Response response = await get(url);
     var json = jsonDecode(response.body);
 
@@ -88,9 +93,12 @@ class _GetLocationState extends State<GetLocationWidget> {
           fCity=json['city_name'];
           fIcon=item['weather']['icon'];
           fTemp=item['temp'].round();
-          fMinTemp=json['data'][0]['min_temp'].round();
-          fMaxTemp=json['data'][0]['max_temp'].round().toInt()+1;
-          fDate=item['datetime'];
+          fMinTemp=json['data'][0]['min_temp'].round() - 2;
+          fMaxTemp=json['data'][0]['max_temp'].round().toInt() + 2;
+          timestamp=item['ts'];
+          var time = DateTime.fromMillisecondsSinceEpoch(timestamp * 1000);
+          final DateFormat formatter = DateFormat('EEEE');
+          fDate = formatter.format(time);
           fCityList.add(fCity);
           fIconList.add(fIcon);
           fTempList.add(fTemp);
@@ -198,159 +206,27 @@ class _GetLocationState extends State<GetLocationWidget> {
                       }
                     },
                   ),
-                  fDate == null ? LoaderWidget() : Padding(
+                  timestamp == null ? LoaderWidget() : Padding(
                     padding: EdgeInsets.symmetric(horizontal: 15, vertical: 5),
                     child: Column(
                       children: [
-                        Container(
-                          child: Stack(
-                            children: [
-                              ClipRRect(
-                                borderRadius: BorderRadius.circular(20),
-                                child: Image.asset(
-                                  imageAsset(),
-                                  height: MediaQuery.of(context).size.height/3,
-                                  width: MediaQuery.of(context).size.width,
-                                  fit: BoxFit.cover,
-                                ),
-                              ),
-                              Column(
-                                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                                children: [
-                                  Text(
-                                    fCity != null ? fCity.toString() : "Loading",
-                                    style: myTextStyle.copyWith(
-                                      fontSize: MediaQuery.of(context).size.height/22,
-                                      fontWeight: FontWeight.w700,
-                                      color: imageAsset()=='assets/images/snow.jpg'
-                                          || imageAsset()=='assets/images/mist.jpg'
-                                          ? Colors.black
-                                          : Colors.white,
-                                    ),
-                                  ),
-                                  Text(
-                                    temp != null ? " "+temp.toString()+"°" : "",
-                                    style: myTextStyle.copyWith(
-                                      fontSize: MediaQuery.of(context).size.width/6.5,
-                                      fontWeight: FontWeight.w700,
-                                      color: imageAsset()=='assets/images/snow.jpg'
-                                          || imageAsset()=='assets/images/mist.jpg'
-                                          ? Colors.black
-                                          : Colors.white,
-                                    ),
-                                  ),
-                                  Image.asset('assets/icons/$icon.png',
-                                    height: MediaQuery.of(context).size.height/10,
-                                    width: MediaQuery.of(context).size.width/4,
-                                  ),
-                                  Text(
-                                    desc != null ? desc.toString() : "Loading",
-                                    style: TextStyle(
-                                      color: imageAsset()=='assets/images/snow.jpg'
-                                          || imageAsset()=='assets/images/mist.jpg'
-                                          ? Colors.black
-                                          : Colors.white,
-                                      fontSize: MediaQuery.of(context).size.height/45,
-                                      fontWeight: FontWeight.w900,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ],
-                            alignment: Alignment.center,
-                          ),
-                          decoration: BoxDecoration(
-                            color: Theme.of(context).primaryColor,
-                            borderRadius: BorderRadius.circular(20)
-                          ),
-                          height: MediaQuery.of(context).size.height/3,
-                          width: MediaQuery.of(context).size.width,
+                        CurrentWeatherWidget(
+                          imagePath: imageAsset(),
+                          cityName: fCity,
+                          temperature: fTemp,
+                          iconPath: icon,
+                          description: desc,
                         ),
-                        SizedBox(
-                          height: MediaQuery.of(context).size.height/40,
+                        ListTiles(
+                          minTemp: fMinTemp != null ? fMinTemp.toString()+"°" : "",
+                          maxTemp: fMaxTemp != null ? fMaxTemp.toString()+"°" : "",
+                          wind: wind != null ? wind.toString()+" km/h" : "",
                         ),
-                        ListTile(
-                          leading: Image.asset('assets/icons/mintemp.png',
-                            width: MediaQuery.of(context).size.width/12,
-                            height: MediaQuery.of(context).size.height/25,
-                          ),
-                          title: Text(
-                            "Min Temperature",
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontSize: MediaQuery.of(context).size.height/50,
-                            ),
-                          ),
-                          trailing: Text(
-                            fMinTemp != null ? fMinTemp.toString()+"°" : "",
-                            style: myTextStyle.copyWith(
-                              fontSize: MediaQuery.of(context).size.height/50,
-                            ),
-                          ),
-                        ),
-                        ListTile(
-                          leading: Image.asset('assets/icons/maxtemp.png',
-                            width: MediaQuery.of(context).size.width/12,
-                            height: MediaQuery.of(context).size.height/20,
-                          ),
-                          title: Text(
-                            "Max Temperature",
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontSize: MediaQuery.of(context).size.height/50,
-                            ),
-                          ),
-                          trailing: Text(
-                            fMaxTemp != null ? fMaxTemp.toString()+"°" : "",
-                            style: myTextStyle.copyWith(
-                              fontSize: MediaQuery.of(context).size.height/50,
-                            ),
-                          ),
-                        ),
-                        ListTile(
-                          leading: Image.asset('assets/icons/wind.png',
-                            width: MediaQuery.of(context).size.width/12,
-                            height: MediaQuery.of(context).size.height/25,
-                          ),
-                          title: Text(
-                            "Wind Speed",
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontSize: MediaQuery.of(context).size.height/50,
-                            ),
-                          ),
-                          trailing: Text(
-                            wind != null ? wind.toString()+" km/h" : "",
-                            style: myTextStyle.copyWith(
-                              fontSize: MediaQuery.of(context).size.height/50,
-                            ),
-                          ),
-                        ),
-                        SizedBox(
-                          height: MediaQuery.of(context).size.height/90,
-                        ),
-                        Divider(
-                          thickness: 0.2,
-                          color: Colors.white,
-                        ),
-                        SizedBox(
-                          height: MediaQuery.of(context).size.height/40,
-                        ),
-                        SizedBox(
-                          height: MediaQuery.of(context).size.height/4.5,
-                          child: ListView.builder(
-                            scrollDirection: Axis.horizontal,
-                            physics: BouncingScrollPhysics(),
-                            shrinkWrap: true,
-                            itemCount: fCityList.length,
-                            itemBuilder: (context, index) {
-                              return ForecastCard(
-                                date: fDateList[index],
-                                temp: fTempList[index],
-                                icon: fIconList[index],
-                              );
-                            },
-                          ),
+                        ForecastCardList(
+                          fCityList: fCityList,
+                          fDateList: fDateList,
+                          fTempList: fTempList,
+                          fIconList: fIconList,
                         ),
                       ],
                     ),
