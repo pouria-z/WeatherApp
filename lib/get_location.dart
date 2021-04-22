@@ -44,8 +44,6 @@ class _GetLocationState extends State<GetLocationWidget> {
   List fMaxTempList = [];
   List fDateList = [];
 
-
-
   Future getLocation() async {
     Position position;
     try {
@@ -87,7 +85,7 @@ class _GetLocationState extends State<GetLocationWidget> {
     var url = "https://api.weatherbit.io/v2.0/forecast/daily?lat=$lat&lon=$lon&key=$apiKey";
     Response response = await get(url);
     var json = jsonDecode(response.body);
-
+    final DateFormat formatter = DateFormat('EEE, MMM d');
     setState(() {
       for (var item in json['data']){
           fCity=json['city_name'];
@@ -97,7 +95,6 @@ class _GetLocationState extends State<GetLocationWidget> {
           fMaxTemp=json['data'][0]['max_temp'].round().toInt() + 2;
           timestamp=item['ts'];
           var time = DateTime.fromMillisecondsSinceEpoch(timestamp * 1000);
-          final DateFormat formatter = DateFormat('EEEE');
           fDate = formatter.format(time);
           fCityList.add(fCity);
           fIconList.add(fIcon);
@@ -106,6 +103,8 @@ class _GetLocationState extends State<GetLocationWidget> {
           fMaxTempList.add(fMaxTemp);
           fDateList.add(fDate);
       }
+      fDateList[0] = 'Today';
+      fDateList[1] = 'Tomorrow';
     });
     refreshController.refreshCompleted();
 
@@ -134,7 +133,7 @@ class _GetLocationState extends State<GetLocationWidget> {
       return 'assets/images/rain.jpg';
     }
     else if (code.toString() == "800"){
-      return 'assets/images/clear.png';
+      return 'assets/images/clear.jpg';
     }
     else if (code.toString() == "300" || code.toString() == "301" ||
         code.toString() == "302"){
@@ -183,16 +182,16 @@ class _GetLocationState extends State<GetLocationWidget> {
                 children: [
                   SearchBox(
                     sizedBoxWidth: 0.0,
-                    offset: -57.5,
+                    offset: -58.0,
                     locIcon: Container(),
                     onSuggestionSelected: (suggestion){
-                      cityname.text = suggestion;
+                      cityName.text = suggestion;
                       Navigator.push(context,
                           CupertinoPageRoute(builder: (context) => Home()),
                       );
                     },
                     onSubmitted: (value) {
-                      if (cityname.text.isEmpty){
+                      if (cityName.text.isEmpty){
                         ScaffoldMessenger.of(context).showSnackBar(
                           SnackBar(
                             content: Text("Please enter city name"),
@@ -213,7 +212,7 @@ class _GetLocationState extends State<GetLocationWidget> {
                         CurrentWeatherWidget(
                           imagePath: imageAsset(),
                           cityName: fCity,
-                          temperature: fTemp,
+                          temperature: temp,
                           iconPath: icon,
                           description: desc,
                         ),

@@ -8,7 +8,6 @@
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <application
-        android:name="io.flutter.app.FlutterApplication"
         android:label="Weather App"
         android:icon="@mipmap/ic_launcher">
         <activity

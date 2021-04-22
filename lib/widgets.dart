@@ -16,7 +16,7 @@ const myTextStyleBold = TextStyle(
     fontFamily: 'Roboto',
     fontWeight: FontWeight.bold,
 );
-final cityname = TextEditingController();
+final cityName = TextEditingController();
 bool showClear = false;
 
 class LocCurrentWeather {
@@ -56,13 +56,9 @@ class LoaderWidget extends StatelessWidget {
                     height: MediaQuery.of(context).size.height/40,
                   ),
                   ListTile(
-                    leading: Container(
-                      height: 25,
-                      width: 25,
-                      decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(20)
-                      ),
+                    leading: Image.asset('assets/icons/mintemp.png',
+                      width: MediaQuery.of(context).size.width/12,
+                      height: MediaQuery.of(context).size.height/25,
                     ),
                     title: Container(
                       height: 5,
@@ -74,13 +70,9 @@ class LoaderWidget extends StatelessWidget {
                     trailing: Container(height: 2, width: 10, color: Colors.white),
                   ),
                   ListTile(
-                    leading: Container(
-                      height: 25,
-                      width: 25,
-                      decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(20)
-                      ),
+                    leading: Image.asset('assets/icons/maxtemp.png',
+                      width: MediaQuery.of(context).size.width/12,
+                      height: MediaQuery.of(context).size.height/25,
                     ),
                     title: Container(
                       height: 5,
@@ -92,13 +84,9 @@ class LoaderWidget extends StatelessWidget {
                     trailing: Container(height: 2, width: 10, color: Colors.white),
                   ),
                   ListTile(
-                    leading: Container(
-                      height: 25,
-                      width: 25,
-                      decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(20)
-                      ),
+                    leading: Image.asset('assets/icons/wind.png',
+                      width: MediaQuery.of(context).size.width/12,
+                      height: MediaQuery.of(context).size.height/25,
                     ),
                     title: Container(
                       height: 5,
@@ -127,7 +115,11 @@ class LoaderWidget extends StatelessWidget {
                       shrinkWrap: true,
                       itemCount: 16,
                       itemBuilder: (context, index) {
-                        return ForecastCard(icon: 'c01n',);
+                        return Image.asset(
+                          'assets/icons/c01n.png',
+                          width: MediaQuery.of(context).size.width / 3,
+                          color: Colors.white,
+                        );
                       },
                     ),
                   ),
@@ -157,34 +149,39 @@ class ForecastCard extends StatefulWidget {
 class _ForecastCardState extends State<ForecastCard> {
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: EdgeInsets.symmetric(horizontal: 10),
-      child: Container(
-        width: MediaQuery.of(context).size.width/3,
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(15),
-          color: Theme.of(context).primaryColor,
-        ),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Text(widget.date != null ? widget.date.toString() : "",
-              style: myTextStyle.copyWith(
-                fontStyle: FontStyle.italic,
-                fontSize: 15,
-              ),
+    return Container(
+      width: MediaQuery.of(context).size.width/3,
+      decoration: BoxDecoration(
+        color: Theme.of(context).scaffoldBackgroundColor,
+          boxShadow: [
+            BoxShadow(
+                color: Colors.black26,
+                spreadRadius: 1,
+                blurRadius: 30,
             ),
-            Image.asset(
-              'assets/icons/${widget.icon}.png',
-              width: MediaQuery.of(context).size.width / 5,
-              height: MediaQuery.of(context).size.height / 10,
+          ]
+      ),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Text(widget.date != null ? widget.date.toString() : "",
+            style: myTextStyle.copyWith(
+              fontStyle: FontStyle.italic,
+              fontSize: MediaQuery.of(context).size.height / 50,
             ),
-            Text(
-              widget.temp.toString()+"°",
-              style: myTextStyle,
+          ),
+          Image.asset(
+            'assets/icons/${widget.icon}.png',
+            width: MediaQuery.of(context).size.width / 5,
+            height: MediaQuery.of(context).size.height / 10,
+          ),
+          Text(
+            " "+widget.temp.toString()+"°",
+            style: myTextStyle.copyWith(
+              fontSize: MediaQuery.of(context).size.height / 35,
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
@@ -254,14 +251,13 @@ class _SearchBoxState extends State<SearchBox> {
         width: MediaQuery.of(context).size.width,
         height: MediaQuery.of(context).size.height/15,
         decoration: BoxDecoration(
-            color: Theme.of(context).primaryColor,
+            color: Theme.of(context).scaffoldBackgroundColor,
             borderRadius: BorderRadius.circular(7),
             boxShadow: [
               BoxShadow(
-                  blurRadius: 7,
-                  spreadRadius: 1,
-                  color: Colors.black87,
-                  offset: Offset.fromDirection(4,-2)
+                  color: Colors.black38,
+                  spreadRadius: 5,
+                  blurRadius: 12,
               ),
             ]
         ),
@@ -301,7 +297,7 @@ class _SearchBoxState extends State<SearchBox> {
                   );
                 },
                 transitionBuilder: (context, suggestionsBox, controller) {
-                  if (cityname.text.length >= 3){
+                  if (cityName.text.length >= 3){
                     return suggestionsBox;
                   }
                   else {
@@ -336,7 +332,7 @@ class _SearchBoxState extends State<SearchBox> {
                   style: myTextStyle.copyWith(fontSize: 16),
                   cursorColor: Colors.white,
                   cursorWidth: 1.5,
-                  controller: cityname,
+                  controller: cityName,
                   textInputAction: TextInputAction.search,
                   decoration: InputDecoration(
                     icon: Hero(
@@ -371,7 +367,7 @@ class _SearchBoxState extends State<SearchBox> {
             showClear==true ? IconButton(
               icon: Icon(Icons.clear_rounded),
               onPressed: () {
-                cityname.clear();
+                cityName.clear();
                 setState(() {
                   showClear=false;
                 });
@@ -466,7 +462,7 @@ class _ListTilesState extends State<ListTiles> {
         ),
         Divider(
           thickness: 0.2,
-          color: Colors.white,
+          color: Colors.white24,
         ),
         SizedBox(
           height: MediaQuery.of(context).size.height/40,
@@ -511,7 +507,7 @@ class _CurrentWeatherWidgetState extends State<CurrentWeatherWidget> {
             ),
           ),
           Column(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Text(
                 widget.cityName != null ? widget.cityName.toString() : "Loading",
@@ -536,21 +532,20 @@ class _CurrentWeatherWidgetState extends State<CurrentWeatherWidget> {
                 ),
               ),
               Image.asset('assets/icons/${widget.iconPath.toString()}.png',
-                height: MediaQuery.of(context).size.height/10,
-                width: MediaQuery.of(context).size.width/4,
+                height: MediaQuery.of(context).size.height/8,
+                width: MediaQuery.of(context).size.width/3,
               ),
               Text(
                 widget.description != null ? widget.description.toString() : "Loading",
                 style: TextStyle(
-                  color: widget.imagePath=='assets/images/snow.jpg'
-                      || widget.imagePath=='assets/images/mist.jpg'
+                  color: widget.imagePath=='assets/images/mist.jpg'
                       ? Colors.black
                       : Colors.white,
                   fontSize: MediaQuery.of(context).size.height/45,
                   fontWeight: FontWeight.w900,
-                  backgroundColor: widget.imagePath=='assets/images/snow.jpg'
-                      ? Colors.white38
-                      : Colors.transparent,
+                  // backgroundColor: widget.imagePath=='assets/images/snow.jpg'
+                  //     ? Colors.white38
+                  //     : Colors.transparent,
                 ),
               ),
             ],
@@ -567,8 +562,5 @@ class _CurrentWeatherWidgetState extends State<CurrentWeatherWidget> {
     );
   }
 }
-
-
-
 
 

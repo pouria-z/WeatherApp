@@ -41,10 +41,10 @@ class _HomeState extends State<Home> {
   RefreshController(initialRefresh: false);
 
   Future currentWeather() async {
-      var url = cityname.text == "Montreal" || cityname.text == "Montréal" || cityname.
-      text == "Vancouver" || cityname.text == "ونکوور" || cityname.text == "Toronto"
-          ? "https://api.weatherbit.io/v2.0/current?city=${cityname.text}&country=CA&key=$apiKey"
-          : "https://api.weatherbit.io/v2.0/current?city=${cityname.text}&key=$apiKey";
+      var url = cityName.text == "Montreal" || cityName.text == "Montréal" || cityName.
+      text == "Vancouver" || cityName.text == "ونکوور" || cityName.text == "Toronto"
+          ? "https://api.weatherbit.io/v2.0/current?city=${cityName.text}&country=CA&key=$apiKey"
+          : "https://api.weatherbit.io/v2.0/current?city=${cityName.text}&key=$apiKey";
       Response response = await get(url);
       var json = jsonDecode(response.body);
       setState(() {
@@ -60,12 +60,13 @@ class _HomeState extends State<Home> {
   }
 
   Future forecastWeather() async {
-    var url = cityname.text == "Montreal" || cityname.text == "Montréal" || cityname.
-    text == "Vancouver" || cityname.text == "ونکوور"
-        ? "https://api.weatherbit.io/v2.0/forecast/daily?city=${cityname.text}&country=CA&key=$apiKey"
-        : "https://api.weatherbit.io/v2.0/forecast/daily?city=${cityname.text}&key=$apiKey";
+    var url = cityName.text == "Montreal" || cityName.text == "Montréal" || cityName.
+    text == "Vancouver" || cityName.text == "ونکوور"
+        ? "https://api.weatherbit.io/v2.0/forecast/daily?city=${cityName.text}&country=CA&key=$apiKey"
+        : "https://api.weatherbit.io/v2.0/forecast/daily?city=${cityName.text}&key=$apiKey";
       Response response = await get(url);
       var json = jsonDecode(response.body);
+      final DateFormat formatter = DateFormat('EEE, MMM d');
       setState(() {
         for (var item in json['data']) {
           fCity = json['city_name'];
@@ -75,7 +76,6 @@ class _HomeState extends State<Home> {
           fMaxTemp = json['data'][0]['max_temp'].round().toInt() + 2;
           timestamp = item['ts'];
           var time = DateTime.fromMillisecondsSinceEpoch(timestamp * 1000);
-          final DateFormat formatter = DateFormat('EEEE');
           fDate = formatter.format(time);
           fCityList.add(fCity);
           fIconList.add(fIcon);
@@ -84,6 +84,8 @@ class _HomeState extends State<Home> {
           fMaxTempList.add(fMaxTemp);
           fDateList.add(fDate);
         }
+        fDateList[0] = 'Today';
+        fDateList[1] = 'Tomorrow';
       });
       _refreshController.refreshCompleted();
   }
@@ -111,7 +113,7 @@ class _HomeState extends State<Home> {
       return 'assets/images/rain.jpg';
     }
     else if (code.toString() == "800"){
-      return 'assets/images/clear.png';
+      return 'assets/images/clear.jpg';
     }
     else if (code.toString() == "300" || code.toString() == "301" ||
         code.toString() == "302"){
@@ -130,7 +132,7 @@ class _HomeState extends State<Home> {
 
   // ignore: missing_return
   Future<bool> onWillPop() async {
-    cityname.clear();
+    cityName.clear();
     Navigator.pushReplacement(context,
       CupertinoPageRoute(builder: (context) => GetLocationWidget()),
     );
@@ -159,29 +161,28 @@ class _HomeState extends State<Home> {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   SearchBox(
-                    sizedBoxWidth: 0.0,
-                    offset: -104.5,
+                    sizedBoxWidth: 7.0,
+                    offset: -113.0,
                     locIcon: IconButton(
                         icon: Icon(
                           Icons.location_on_rounded,
                           color: Colors.white,
-                          //size: MediaQuery.of(context).size.height/46,
                         ),
                         onPressed: () {
                           Navigator.push(context, CupertinoPageRoute(
                             builder: (context) => GetLocationWidget(),
                           ));
-                          cityname.text = "";
+                          cityName.text = "";
                         },
                     ),
                     onSuggestionSelected: (suggestion) {
-                      cityname.text = suggestion;
+                      cityName.text = suggestion;
                       Navigator.push(context,
                         CupertinoPageRoute(builder: (context) => Home()),
                       );
                     },
                     onSubmitted: (value) {
-                      if (cityname.text.isEmpty){
+                      if (cityName.text.isEmpty){
                         ScaffoldMessenger.of(context).showSnackBar(
                           SnackBar(
                             content: Text("Please enter city name"),

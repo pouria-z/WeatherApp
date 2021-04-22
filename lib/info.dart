@@ -25,19 +25,18 @@ class _InfoState extends State<Info> {
       ),
       body: Center(
         child: Padding(
-          padding: EdgeInsets.symmetric(horizontal: 15),
+          padding: EdgeInsets.symmetric(horizontal: 25),
           child: Container(
             height: MediaQuery.of(context).size.height/3,
             width: MediaQuery.of(context).size.width,
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(25),
-              color: Theme.of(context).primaryColor,
+              color: Theme.of(context).scaffoldBackgroundColor,
               boxShadow: [
                 BoxShadow(
                   color: Colors.black54,
-                  spreadRadius: 1,
-                  blurRadius: 5,
-                  offset: Offset.fromDirection(10,-4)
+                  spreadRadius: 0,
+                  blurRadius: 50,
                 ),
               ]
             ),
