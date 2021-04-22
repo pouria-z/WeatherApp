@@ -8,7 +8,7 @@ Weather app includes the following features:
 
 - Current temperature of your current location
 
-- Next 6 days weather of your current location
+- Next 16 days weather of your current location
 
 - Minimum temperature
 
@@ -24,7 +24,7 @@ Weather app includes the following features:
 
 - Suggestion list for search bar
 
-- Next 6 days weather of searched city
+- Next 16 days weather of searched city
 
 Version 5.0.19, published on https://cafebazaar.ir/?l=en
 
