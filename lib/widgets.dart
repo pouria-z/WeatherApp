@@ -19,15 +19,6 @@ const myTextStyleBold = TextStyle(
 final cityName = TextEditingController();
 bool showClear = false;
 
-class LocCurrentWeather {
-  final icon;
-  final temp;
-  final desc;
-  final wind;
-  final code;
-  LocCurrentWeather(this.icon, this.temp, this.desc, this.wind, this.code);
-}
-
 class LoaderWidget extends StatelessWidget {
   const LoaderWidget({
     Key key,
@@ -233,10 +224,9 @@ class SearchBox extends StatefulWidget {
   final onSubmitted;
   final sizedBoxWidth;
   final offset;
-  final searchIcon;
 
   const SearchBox({Key key, this.locIcon, this.onSubmitted, this.sizedBoxWidth,
-    this.offset, this.searchIcon, this.onSuggestionSelected}) : super(key: key);
+    this.offset, this.onSuggestionSelected}) : super(key: key);
 
 
   @override
@@ -476,6 +466,7 @@ class CurrentWeatherWidget extends StatefulWidget {
 
   final String imagePath;
   final String cityName;
+  final locIcon;
   final temperature;
   final String iconPath;
   final String description;
@@ -483,6 +474,7 @@ class CurrentWeatherWidget extends StatefulWidget {
   const CurrentWeatherWidget({Key key,
     @required this.imagePath,
     @required this.cityName,
+    @required this.locIcon,
     @required this.temperature,
     @required this.iconPath,
     @required this.description,
@@ -509,16 +501,23 @@ class _CurrentWeatherWidgetState extends State<CurrentWeatherWidget> {
           Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Text(
-                widget.cityName != null ? widget.cityName.toString() : "Loading",
-                style: myTextStyle.copyWith(
-                  fontSize: MediaQuery.of(context).size.height/22,
-                  fontWeight: FontWeight.w700,
-                  color: widget.imagePath=='assets/images/snow.jpg'
-                      || widget.imagePath=='assets/images/mist.jpg'
-                      ? Colors.black
-                      : Colors.white,
-                ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  widget.locIcon,
+                  Text(
+                    widget.cityName != null ? widget.cityName.toString() : "Loading",
+                    style: myTextStyle.copyWith(
+                      fontSize: MediaQuery.of(context).size.height/22,
+                      fontWeight: FontWeight.w700,
+                      color: widget.imagePath=='assets/images/snow.jpg'
+                          || widget.imagePath=='assets/images/mist.jpg'
+                          ? Colors.black
+                          : Colors.white,
+                    ),
+                  ),
+                ],
               ),
               Text(
                 widget.temperature != null ? " "+widget.temperature.toString()+"°" : "",
