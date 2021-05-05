@@ -11,10 +11,10 @@ RefreshController(initialRefresh: false);
 
 class HomePage extends StatefulWidget {
   @override
-  _GetLocationState createState() => _GetLocationState();
+  _HomePage createState() => _HomePage();
 }
 
-class _GetLocationState extends State<HomePage> {
+class _HomePage extends State<HomePage> {
 
 @override
   void initState() {
