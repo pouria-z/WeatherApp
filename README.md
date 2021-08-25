@@ -26,8 +26,13 @@ Weather app includes the following features:
 
 - Next 16 days weather of searched city
 
-Version 5.1.1, published on https://cafebazaar.ir/?l=en
+### Update
 
-You can also check my other apps on https://cafebazaar.ir/developer/413934687302?l=en
+Version 5.1.1, published on [CafeBazaar](https://cafebazaar.ir/app?l=en).
 
-Contact me: pouria.zeinalzadeh@gmail.com
+You can also check my other apps on [here](https://cafebazaar.ir/developer/413934687302?l=en).
+
+### Contact Me
+
+- pouria.zeinalzadeh@gmail.com
+- [pouriazeinalzadeh.web.app](https://pouriazeinalzadeh.web.app)
