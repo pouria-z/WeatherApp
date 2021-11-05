@@ -1,7 +1,7 @@
 name: weather_app
 description: A new Flutter application.
 
-version: 5.1.0+11
+version: 5.1.3+13
 
 environment:
   sdk: ">=2.7.0 <3.0.0"
