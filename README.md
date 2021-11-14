@@ -28,11 +28,11 @@ Weather app includes the following features:
 
 ### Update
 
-Version 5.1.1, published on [CafeBazaar](https://cafebazaar.ir/app?l=en).
+Version 5.1.3, published on [CafeBazaar](https://cafebazaar.ir/app?l=en).
 
 ### Contact Me
 
-You can also check my other apps on [here](https://cafebazaar.ir/developer/413934687302?l=en).
+You can also check my other apps [here](https://cafebazaar.ir/developer/413934687302?l=en).
 
 - pouria.zeinalzadeh@gmail.com
 - [pouriazeinalzadeh.web.app](https://pouriazeinalzadeh.web.app)
