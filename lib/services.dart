@@ -39,12 +39,16 @@ class Weather with ChangeNotifier {
   List fMinTempList = [];
   List fMaxTempList = [];
   List fDateList = [];
+  bool gpsIsOn = false;
 
   Future getLocation() async {
     Position position;
+    gpsIsOn = await Geolocator.isLocationServiceEnabled();
     try {
-      position = await Geolocator.getCurrentPosition(
-          desiredAccuracy: LocationAccuracy.low);
+      gpsIsOn
+          ? position = await Geolocator.getCurrentPosition(
+              desiredAccuracy: LocationAccuracy.low)
+          : Geolocator.openLocationSettings();
     } catch (e) {
       print(e);
     }

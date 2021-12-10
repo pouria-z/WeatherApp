@@ -311,7 +311,7 @@ class _HomePage extends State<HomePage> {
 
   Future<void> sendRequest(Weather weather, Future future) async {
     try {
-      await future.timeout(Duration(seconds: 10));
+      await future.timeout(Duration(seconds: 15));
     } on TimeoutException catch (e) {
       setState(() {
         hasError = true;
