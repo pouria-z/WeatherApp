@@ -43,12 +43,11 @@ class Weather with ChangeNotifier {
 
   Future getLocation() async {
     Position position;
-    gpsIsOn = await Geolocator.isLocationServiceEnabled();
+    // gpsIsOn = await Geolocator.isLocationServiceEnabled();
     try {
-      gpsIsOn
-          ? position = await Geolocator.getCurrentPosition(
-              desiredAccuracy: LocationAccuracy.low)
-          : Geolocator.openLocationSettings();
+
+          position = await Geolocator.getCurrentPosition(
+              desiredAccuracy: LocationAccuracy.low);
     } catch (e) {
       print(e);
     }
@@ -61,7 +60,6 @@ class Weather with ChangeNotifier {
   }
 
   Future locCurrentWeather() async {
-    await getApiKey();
     apiHasProblem = false;
     url = Uri.parse(
         "https://api.weatherbit.io/v2.0/current?lat=$lat&lon=$lon&key=$apiKey");
@@ -122,7 +120,6 @@ class Weather with ChangeNotifier {
   }
 
   Future currentWeather() async {
-    await getApiKey();
     apiHasProblem = false;
     Uri canadaCurrentUrl = Uri.parse(
         "https://api.weatherbit.io/v2.0/forecast/daily?city=${cityName.text}&country=CA&key=$apiKey");

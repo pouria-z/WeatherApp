@@ -1,16 +1,36 @@
+import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
+import 'package:parse_server_sdk_flutter/parse_server_sdk.dart';
+import 'package:provider/provider.dart';
 import 'package:weather_app/home.dart';
 import 'package:weather_app/key.dart';
-import 'package:provider/provider.dart';
+import 'package:weather_app/notification.dart';
 import 'package:weather_app/services.dart';
-import 'package:parse_server_sdk/parse_server_sdk.dart';
+
+Future<void> _messageHandler(RemoteMessage message) async {
+  print(
+      "notification on background received! title: '${message.notification.body}',"
+      " body: '${message.notification.body}'.");
+  // NotificationService.display(message);
+}
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp();
+  NotificationService.initialize();
+  FirebaseMessaging.onBackgroundMessage(_messageHandler);
+  FirebaseMessaging.instance.getToken().then((value) => print(value));
   final keyParseServerUrl = 'https://parseapi.back4app.com';
-  await Parse().initialize(keyApplicationId, keyParseServerUrl,
-      clientKey: keyClientKey, autoSendSessionId: true);
+  await Parse().initialize(
+    keyApplicationId,
+    keyParseServerUrl,
+    clientKey: keyClientKey,
+    autoSendSessionId: true,
+    liveQueryUrl: serverUrl,
+  );
   await getApiKey();
+  await getNotification();
   runApp(
     ChangeNotifierProvider(
       create: (context) => Weather(),
@@ -23,4 +43,3 @@ void main() async {
     ),
   );
 }
-

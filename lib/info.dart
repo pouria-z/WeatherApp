@@ -1,7 +1,8 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:iconsax/iconsax.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:weather_app/widgets.dart';
 
@@ -11,8 +12,8 @@ class Info extends StatefulWidget {
 }
 
 class _InfoState extends State<Info> {
-
   TapGestureRecognizer tapGestureRecognizer = TapGestureRecognizer();
+
   @override
   void initState() {
     super.initState();
@@ -26,7 +27,7 @@ class _InfoState extends State<Info> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Theme.of(context).primaryColor,
+        backgroundColor: Theme.of(context).scaffoldBackgroundColor,
         title: Text(
           "Info",
           style: myTextStyleBold,
@@ -38,77 +39,91 @@ class _InfoState extends State<Info> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Container(
-              height: MediaQuery.of(context).size.height / 3,
-              width: MediaQuery.of(context).size.width,
-              decoration: BoxDecoration(
+            PhysicalModel(
+              color: Colors.transparent,
+              elevation: 15,
+              borderRadius: BorderRadius.circular(25),
+              child: Container(
+                height: MediaQuery.of(context).size.height / 3,
+                width: MediaQuery.of(context).size.width,
+                decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(25),
                   color: Theme.of(context).scaffoldBackgroundColor,
-                  boxShadow: [
-                    BoxShadow(
-                        color: Colors.black26,
-                        spreadRadius: 4,
-                        blurRadius: 20,
-                        offset: Offset(0, 12)),
-                  ]),
-              child: Center(
-                child: SingleChildScrollView(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      ListTile(
-                        leading: Icon(FontAwesomeIcons.solidEnvelope),
-                        title: Text(
-                          "Contact Me",
-                          style: myTextStyleBold,
-                        ),
-                        trailing: IconButton(
-                          icon: Icon(Icons.arrow_forward_ios_rounded),
-                          onPressed: () {
-                            var url = "mailto:pouria.zeinalzadeh@gmail.com?subject=Weather App";
-                            launch(url);
-                          },
-                          tooltip: "pouria.zeinalzadeh@gmail.com",
-                        ),
-                      ),
-                      ListTile(
-                        leading: Icon(FontAwesomeIcons.solidStar),
-                        title: Text(
-                          "Rate This App",
-                          style: myTextStyleBold,
-                        ),
-                        trailing: IconButton(
-                          icon: Icon(Icons.arrow_forward_ios_rounded),
-                          onPressed: () {
-                            var url =
-                                "https://cafebazaar.ir/app/com.weather.weather_app?l=en";
-                            launch(url);
-                          },
-                          tooltip: "CafeBazaar | WeatherApp",
-                        ),
-                      ),
-                      ListTile(
-                        leading: Icon(FontAwesomeIcons.googlePlay),
-                        title: Text(
-                          "My Other Apps",
-                          style: myTextStyleBold,
-                        ),
-                        trailing: IconButton(
-                          icon: Icon(
-                            Icons.arrow_forward_ios_rounded,
-                            color: Colors.white,
+                ),
+                child: Center(
+                  child: SingleChildScrollView(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        ListTile(
+                          leading: Icon(
+                            Iconsax.message_24,
+                            // color: Colors.orange,
                           ),
-                          onPressed: () {
-                            var url =
-                                "https://cafebazaar.ir/developer/413934687302?l=en";
-                            launch(url);
-                          },
-                          tooltip: "CafeBazaar | Pouria Zeinalzadeh",
+                          title: Text(
+                            "Contact Me",
+                            style: myTextStyleBold,
+                          ),
+                          trailing: IconButton(
+                            icon: Icon(
+                              Iconsax.arrow_circle_right,
+                              // color: Colors.orange,
+                            ),
+                            onPressed: () {
+                              var url =
+                                  "mailto:pouria.zeinalzadeh@gmail.com?subject=Weather App";
+                              launch(url);
+                            },
+                            tooltip: "pouria.zeinalzadeh@gmail.com",
+                          ),
                         ),
-                      ),
-                      Text.rich(
-                        TextSpan(
-                          children: [
+                        ListTile(
+                          leading: Icon(
+                            Iconsax.star,
+                            // color: Colors.orange,
+                          ),
+                          title: Text(
+                            "Rate This App",
+                            style: myTextStyleBold,
+                          ),
+                          trailing: IconButton(
+                            icon: Icon(
+                              Iconsax.arrow_circle_right,
+                              // color: Colors.orange,
+                            ),
+                            onPressed: () {
+                              var url =
+                                  "https://cafebazaar.ir/app/com.weather.weather_app?l=en";
+                              launch(url);
+                            },
+                            tooltip: "CafeBazaar | WeatherApp",
+                          ),
+                        ),
+                        ListTile(
+                          leading: Icon(
+                            FontAwesomeIcons.googlePlay,
+                            // color: Colors.orange,
+                            size: 20,
+                          ),
+                          title: Text(
+                            "My Other Apps",
+                            style: myTextStyleBold,
+                          ),
+                          trailing: IconButton(
+                            icon: Icon(
+                              Iconsax.arrow_circle_right,
+                              // color: Colors.orange,
+                            ),
+                            onPressed: () {
+                              var url =
+                                  "https://cafebazaar.ir/developer/413934687302?l=en";
+                              launch(url);
+                            },
+                            tooltip: "CafeBazaar | Pouria Zeinalzadeh",
+                          ),
+                        ),
+                        Text.rich(
+                          TextSpan(children: [
                             TextSpan(
                               text: "Data provided by: ",
                               style: myTextStyle.copyWith(
@@ -124,10 +139,10 @@ class _InfoState extends State<Info> {
                               ),
                               recognizer: tapGestureRecognizer,
                             ),
-                          ]
+                          ]),
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
                 ),
               ),

@@ -1,9 +1,10 @@
-import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_typeahead/flutter_typeahead.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:weather_app/all_cities.dart';
-import 'package:flutter_typeahead/flutter_typeahead.dart';
 import 'package:weather_app/info.dart';
+import 'package:iconsax/iconsax.dart';
 
 const myTextStyle = TextStyle(
   color: Colors.white,
@@ -228,15 +229,17 @@ class SearchBox extends StatefulWidget {
   final onSubmitted;
   final sizedBoxWidth;
   final offset;
+  final favoriteWidget;
 
-  const SearchBox(
-      {Key key,
-      this.locIcon,
-      this.onSubmitted,
-      this.sizedBoxWidth,
-      this.offset,
-      this.onSuggestionSelected})
-      : super(key: key);
+  const SearchBox({
+    Key key,
+    this.locIcon,
+    this.onSubmitted,
+    this.sizedBoxWidth,
+    this.offset,
+    this.onSuggestionSelected,
+    this.favoriteWidget,
+  }) : super(key: key);
 
   @override
   _SearchBoxState createState() => _SearchBoxState();
@@ -266,15 +269,16 @@ class _SearchBoxState extends State<SearchBox> {
             SizedBox(width: 10),
             IconButton(
               icon: Icon(
-                Icons.info_outline_rounded,
+                Iconsax.info_circle,
                 color: Colors.white,
               ),
               onPressed: () {
                 Navigator.push(
-                    context,
-                    CupertinoPageRoute(
-                      builder: (context) => Info(),
-                    ));
+                  context,
+                  CupertinoPageRoute(
+                    builder: (context) => Info(),
+                  ),
+                );
               },
               splashRadius: 20,
             ),
@@ -293,7 +297,7 @@ class _SearchBoxState extends State<SearchBox> {
                 itemBuilder: (context, suggestion) {
                   return ListTile(
                     leading: Icon(
-                      Icons.search_rounded,
+                      Iconsax.search_normal_1,
                       color: Colors.white,
                       size: MediaQuery.of(context).size.height / 35,
                     ),
@@ -314,7 +318,7 @@ class _SearchBoxState extends State<SearchBox> {
                 noItemsFoundBuilder: (context) => ListTile(
                   title: Text("No Item Found!", style: myTextStyle),
                   leading: Icon(
-                    Icons.dangerous,
+                    Iconsax.danger,
                     color: Colors.white,
                   ),
                 ),
@@ -340,7 +344,7 @@ class _SearchBoxState extends State<SearchBox> {
                   textInputAction: TextInputAction.search,
                   decoration: InputDecoration(
                     icon: Icon(
-                      Icons.search_rounded,
+                      Iconsax.search_normal,
                       color: Colors.white60,
                     ),
                     focusedBorder: InputBorder.none,
@@ -483,7 +487,7 @@ class _ListTilesState extends State<ListTiles> {
 class CurrentWeatherWidget extends StatefulWidget {
   final String imagePath;
   final String cityName;
-  final locIcon;
+  final url;
   final temperature;
   final String iconPath;
   final String description;
@@ -492,7 +496,7 @@ class CurrentWeatherWidget extends StatefulWidget {
     Key key,
     @required this.imagePath,
     @required this.cityName,
-    @required this.locIcon,
+    @required this.url,
     @required this.temperature,
     @required this.iconPath,
     @required this.description,
@@ -526,17 +530,39 @@ class _CurrentWeatherWidgetState extends State<CurrentWeatherWidget> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  widget.locIcon,
-                  Text(
-                    widget.cityName != null
-                        ? widget.cityName.toString()
-                        : "Loading",
+                  Container(
+                    height: size.height / 18,
+                    width: size.width / 1.2,
+                    child: FittedBox(
+                      fit: BoxFit.contain,
+                      child: Text(
+                        widget.cityName != null &&
+                                widget.url.toString().contains('city')
+                            ? widget.cityName.toString()
+                            : widget.cityName != null
+                                ? "📍" + widget.cityName.toString()
+                                : "Loading",
+                        style: myTextStyle.copyWith(
+                          fontWeight: FontWeight.w700,
+                          color: widget.imagePath == 'assets/images/snow.jpg' ||
+                                  widget.imagePath == 'assets/images/mist.jpg'
+                              ? Colors.black
+                              : Colors.white,
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              Container(
+                height: size.height / 13,
+                child: FittedBox(
+                  fit: BoxFit.fitHeight,
+                  child: Text(
+                    widget.temperature != null
+                        ? " " + widget.temperature.toString() + "°"
+                        : "",
                     style: myTextStyle.copyWith(
-                      fontSize: area < 310000 && area > 250000 && widget.cityName.length < 15
-                          ? 40
-                          : area >= 310000 && widget.cityName.length < 15
-                              ? 50
-                              : 22,
                       fontWeight: FontWeight.w700,
                       color: widget.imagePath == 'assets/images/snow.jpg' ||
                               widget.imagePath == 'assets/images/mist.jpg'
@@ -544,44 +570,28 @@ class _CurrentWeatherWidgetState extends State<CurrentWeatherWidget> {
                           : Colors.white,
                     ),
                   ),
-                ],
-              ),
-              Text(
-                widget.temperature != null
-                    ? " " + widget.temperature.toString() + "°"
-                    : "",
-                style: myTextStyle.copyWith(
-                  fontSize: area < 310000 && area > 250000
-                      ? 60
-                      : area >= 310000
-                      ? 70
-                      : 35,
-                  fontWeight: FontWeight.w700,
-                  color: widget.imagePath == 'assets/images/snow.jpg' ||
-                          widget.imagePath == 'assets/images/mist.jpg'
-                      ? Colors.black
-                      : Colors.white,
                 ),
               ),
               Image.asset(
                 'assets/icons/${widget.iconPath.toString()}.png',
-                height: MediaQuery.of(context).size.height / 8,
+                height: MediaQuery.of(context).size.height / 10,
                 width: MediaQuery.of(context).size.width / 3,
               ),
-              Text(
-                widget.description != null
-                    ? widget.description.toString()
-                    : "Loading",
-                style: TextStyle(
-                  color: widget.imagePath == 'assets/images/mist.jpg'
-                      ? Colors.black
-                      : Colors.white,
-                  fontSize: area < 310000 && area > 250000
-                      ? 10
-                      : area >= 310000
-                      ? 20
-                      : 10,
-                  fontWeight: FontWeight.w900,
+              Container(
+                height: size.height / 50,
+                child: FittedBox(
+                  fit: BoxFit.fitHeight,
+                  child: Text(
+                    widget.description != null
+                        ? widget.description.toString()
+                        : "Loading",
+                    style: TextStyle(
+                      color: widget.imagePath == 'assets/images/mist.jpg'
+                          ? Colors.black
+                          : Colors.white,
+                      fontWeight: FontWeight.w900,
+                    ),
+                  ),
                 ),
               ),
             ],

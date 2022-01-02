@@ -1,9 +1,11 @@
 import 'dart:async';
 import 'dart:io';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:pull_to_refresh/pull_to_refresh.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:weather_app/notification.dart';
 import 'package:weather_app/services.dart';
 import 'package:weather_app/widgets.dart';
 import 'package:provider/provider.dart';
@@ -20,6 +22,9 @@ class _HomePage extends State<HomePage> {
   void initState() {
     super.initState();
     var weather = Provider.of<Weather>(context, listen: false);
+    FirebaseMessaging.onMessage.listen((message) {
+      NotificationService.display(message);
+    });
     WidgetsBinding.instance.addPostFrameCallback((timeStamp) async {
       await weather.getLocation();
       await weather.locCurrentWeather();
@@ -256,24 +261,7 @@ class _HomePage extends State<HomePage> {
                                       CurrentWeatherWidget(
                                         imagePath: weather.imageAsset(),
                                         cityName: weather.fCity,
-                                        locIcon: weather.url
-                                                .toString()
-                                                .contains('city')
-                                            ? Container()
-                                            : Icon(
-                                                FontAwesomeIcons.mapPin,
-                                                size: area < 310000 && area > 250000
-                                                    ? 35
-                                                    : area >= 310000
-                                                    ? 40
-                                                    : 23,
-                                                color: weather.imageAsset() ==
-                                                            'assets/images/snow.jpg' ||
-                                                        weather.imageAsset() ==
-                                                            'assets/images/mist.jpg'
-                                                    ? Colors.black
-                                                    : Colors.white,
-                                              ),
+                                        url: weather.url,
                                         temperature: weather.temp,
                                         iconPath: weather.icon,
                                         description: weather.desc,
@@ -315,14 +303,14 @@ class _HomePage extends State<HomePage> {
     } on TimeoutException catch (e) {
       setState(() {
         hasError = true;
+        refreshController.refreshFailed();
       });
-      refreshController.refreshCompleted();
       throw e;
     } on SocketException catch (e) {
       setState(() {
         hasError = true;
+        refreshController.refreshFailed();
       });
-      refreshController.refreshCompleted();
       throw e;
     }
   }
