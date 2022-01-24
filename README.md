@@ -28,7 +28,7 @@ Weather app includes the following features:
 
 ### Update
 
-Version 5.1.3, published on [CafeBazaar](https://cafebazaar.ir/app/com.weather.weather_app?l=en).
+Version 5.2.0, published on [CafeBazaar](https://cafebazaar.ir/app/com.weather.weather_app?l=en).
 
 ### Contact Me
 
