@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
@@ -15,10 +16,16 @@ class Info extends StatefulWidget {
 
 class _InfoState extends State<Info> {
   TapGestureRecognizer tapGestureRecognizer = TapGestureRecognizer();
+  FirebaseAnalytics analytics = FirebaseAnalytics.instance;
 
   @override
   void initState() {
     super.initState();
+    Future.delayed(Duration.zero, () async {
+      analytics.setCurrentScreen(
+        screenName: "info_screen",
+      );
+    });
     tapGestureRecognizer.onTap = () {
       var url = "https://www.weatherbit.io";
       launch(url);
@@ -72,8 +79,7 @@ class _InfoState extends State<Info> {
                               // color: Colors.orange,
                             ),
                             onPressed: () {
-                              var url =
-                                  "mailto:pouria.zeinalzadeh@gmail.com?subject=Weather App";
+                              var url = "mailto:pouria.zeinalzadeh@gmail.com?subject=Weather App";
                               launch(url);
                             },
                             tooltip: "pouria.zeinalzadeh@gmail.com",
@@ -121,8 +127,7 @@ class _InfoState extends State<Info> {
                                     // color: Colors.orange,
                                   ),
                                   onPressed: () {
-                                    var url =
-                                        "https://cafebazaar.ir/developer/413934687302?l=en";
+                                    var url = "https://cafebazaar.ir/developer/413934687302?l=en";
                                     launch(url);
                                   },
                                   tooltip: "CafeBazaar | Pouria Zeinalzadeh",
@@ -165,7 +170,8 @@ class _InfoState extends State<Info> {
                     textAlign: TextAlign.center,
                   ),
                   InkWell(
-                    onTap: () {
+                    onTap: () async {
+                      analytics.logEvent(name: "buy_me_coffee");
                       var url = "http://www.coffeete.ir/pouria";
                       launch(url);
                     },

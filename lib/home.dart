@@ -1,10 +1,10 @@
 import 'dart:async';
 import 'dart:io';
+import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:pull_to_refresh/pull_to_refresh.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:weather_app/notification.dart';
 import 'package:weather_app/services.dart';
 import 'package:weather_app/widgets.dart';
@@ -18,6 +18,8 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePage extends State<HomePage> {
+  FirebaseAnalytics analytics = FirebaseAnalytics.instance;
+
   @override
   void initState() {
     super.initState();
@@ -26,6 +28,7 @@ class _HomePage extends State<HomePage> {
       NotificationService.display(message);
     });
     WidgetsBinding.instance.addPostFrameCallback((timeStamp) async {
+      await analytics.setCurrentScreen(screenName: "home_screen");
       await weather.getLocation();
       await weather.locCurrentWeather();
       await weather.locForecastWeather();
@@ -146,14 +149,13 @@ class _HomePage extends State<HomePage> {
                                 splashRadius: 20,
                               )
                             : Container(),
-                        sizedBoxWidth:
-                            weather.url.toString().contains('city') ? 7.0 : 0.0,
-                        offset: weather.url.toString().contains('city')
-                            ? -113.0
-                            : -58.0,
+                        sizedBoxWidth: weather.url.toString().contains('city') ? 7.0 : 0.0,
+                        offset: weather.url.toString().contains('city') ? -113.0 : -58.0,
 
                         ///SuggestionSelected
                         onSuggestionSelected: (suggestion) async {
+                          analytics.logEvent(
+                              name: "clicked_on_suggestion", parameters: {'city': '$suggestion'});
                           setState(() {
                             hasError = false;
                           });
@@ -182,6 +184,9 @@ class _HomePage extends State<HomePage> {
                               ),
                             );
                           } else {
+                            analytics.logEvent(
+                                name: "searched_by_keyboard",
+                                parameters: {'city': '${cityName.text}'});
                             setState(() {
                               hasError = false;
                             });
@@ -207,21 +212,16 @@ class _HomePage extends State<HomePage> {
                               ? Column(
                                   children: [
                                     SizedBox(
-                                      height:
-                                          (MediaQuery.of(context).size.height /
-                                                  2) -
-                                              AppBar().preferredSize.height,
+                                      height: (MediaQuery.of(context).size.height / 2) -
+                                          AppBar().preferredSize.height,
                                     ),
-                                    Text(
-                                        "Something went wrong! Please try again later."),
+                                    Text("Something went wrong! Please try again later."),
                                     IconButton(
                                       onPressed: () async {
                                         setState(() {
                                           hasError = false;
                                         });
-                                        if (weather.url
-                                            .toString()
-                                            .contains('city')) {
+                                        if (weather.url.toString().contains('city')) {
                                           await sendRequest(
                                             weather,
                                             weather.currentWeather(),
@@ -254,8 +254,7 @@ class _HomePage extends State<HomePage> {
                                   ],
                                 )
                               : Padding(
-                                  padding: EdgeInsets.symmetric(
-                                      horizontal: 15, vertical: 5),
+                                  padding: EdgeInsets.symmetric(horizontal: 15, vertical: 5),
                                   child: Column(
                                     children: [
                                       CurrentWeatherWidget(
