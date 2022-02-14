@@ -28,7 +28,10 @@ Weather app includes the following features:
 
 ### Update
 
+- Android:
 Version 5.2.0, published on [CafeBazaar](https://cafebazaar.ir/app/com.weather.weather_app?l=en).
+- iOS:
+Version 5.2.0, published on [SibApp](https://sibapp.com/applications/WeatherApp).
 
 ### Contact Me
 
