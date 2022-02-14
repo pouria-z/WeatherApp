@@ -3,9 +3,9 @@
 <plist version="1.0">
 <dict>
 	<key>CLIENT_ID</key>
-	<string>997300236049-gjjiu0d5sdtfnrrrtvfbseed33a8ksc8.apps.googleusercontent.com</string>
+	<string>997300236049-gf2cou2vgcpem07gdm2g5hihih5j2adq.apps.googleusercontent.com</string>
 	<key>REVERSED_CLIENT_ID</key>
-	<string>com.googleusercontent.apps.997300236049-gjjiu0d5sdtfnrrrtvfbseed33a8ksc8</string>
+	<string>com.googleusercontent.apps.997300236049-gf2cou2vgcpem07gdm2g5hihih5j2adq</string>
 	<key>API_KEY</key>
 	<string>AIzaSyB0tpQ-lMWUdhwlwpGoc6UxdTGQySJez6k</string>
 	<key>GCM_SENDER_ID</key>
@@ -13,23 +13,23 @@
 	<key>PLIST_VERSION</key>
 	<string>1</string>
 	<key>BUNDLE_ID</key>
-	<string>app.web.pouriazeinalzadeh.weatherApp</string>
+	<string>com.weather.weatherapp</string>
 	<key>PROJECT_ID</key>
 	<string>weatherapp-flutter</string>
 	<key>STORAGE_BUCKET</key>
 	<string>weatherapp-flutter.appspot.com</string>
 	<key>IS_ADS_ENABLED</key>
-	<false></false>
+	<false/>
 	<key>IS_ANALYTICS_ENABLED</key>
-	<false></false>
+	<true/>
 	<key>IS_APPINVITE_ENABLED</key>
-	<true></true>
+	<true/>
 	<key>IS_GCM_ENABLED</key>
-	<true></true>
+	<true/>
 	<key>IS_SIGNIN_ENABLED</key>
-	<true></true>
+	<true/>
 	<key>GOOGLE_APP_ID</key>
-	<string>1:997300236049:ios:1590b58504184faccfa6b0</string>
+	<string>1:997300236049:ios:0f0dd34ef1e55b39cfa6b0</string>
 	<key>DATABASE_URL</key>
 	<string>https://weatherapp-flutter-default-rtdb.firebaseio.com</string>
 </dict>

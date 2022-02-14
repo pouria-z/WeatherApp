@@ -43,11 +43,13 @@ class Weather with ChangeNotifier {
 
   Future getLocation() async {
     Position position;
-    // gpsIsOn = await Geolocator.isLocationServiceEnabled();
+    if (Platform.isIOS) {
+      GeolocatorPlatform.instance.requestPermission();
+    }
+    // Geolocator.requestPermission();
     try {
-
-          position = await Geolocator.getCurrentPosition(
-              desiredAccuracy: LocationAccuracy.low);
+      position = await Geolocator.getCurrentPosition(
+          desiredAccuracy: LocationAccuracy.low);
     } catch (e) {
       print(e);
     }

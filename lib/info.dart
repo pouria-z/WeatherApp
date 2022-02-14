@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
@@ -92,36 +94,41 @@ class _InfoState extends State<Info> {
                               // color: Colors.orange,
                             ),
                             onPressed: () {
-                              var url =
-                                  "https://cafebazaar.ir/app/com.weather.weather_app?l=en";
+                              var url = Platform.isAndroid
+                                  ? "https://cafebazaar.ir/app/com.weather.weather_app?l=en"
+                                  : "https://sibapp.com/";
                               launch(url);
                             },
-                            tooltip: "CafeBazaar | WeatherApp",
+                            tooltip: Platform.isAndroid
+                                ? "CafeBazaar | WeatherApp"
+                                : "SibApp | WeatherApp",
                           ),
                         ),
-                        ListTile(
-                          leading: Icon(
-                            FontAwesomeIcons.googlePlay,
-                            // color: Colors.orange,
-                            size: 20,
-                          ),
-                          title: Text(
-                            "My Other Apps",
-                            style: myTextStyleBold,
-                          ),
-                          trailing: IconButton(
-                            icon: Icon(
-                              Iconsax.arrow_circle_right,
-                              // color: Colors.orange,
-                            ),
-                            onPressed: () {
-                              var url =
-                                  "https://cafebazaar.ir/developer/413934687302?l=en";
-                              launch(url);
-                            },
-                            tooltip: "CafeBazaar | Pouria Zeinalzadeh",
-                          ),
-                        ),
+                        Platform.isAndroid
+                            ? ListTile(
+                                leading: Icon(
+                                  FontAwesomeIcons.googlePlay,
+                                  // color: Colors.orange,
+                                  size: 20,
+                                ),
+                                title: Text(
+                                  "My Other Apps",
+                                  style: myTextStyleBold,
+                                ),
+                                trailing: IconButton(
+                                  icon: Icon(
+                                    Iconsax.arrow_circle_right,
+                                    // color: Colors.orange,
+                                  ),
+                                  onPressed: () {
+                                    var url =
+                                        "https://cafebazaar.ir/developer/413934687302?l=en";
+                                    launch(url);
+                                  },
+                                  tooltip: "CafeBazaar | Pouria Zeinalzadeh",
+                                ),
+                              )
+                            : Container(),
                         Text.rich(
                           TextSpan(children: [
                             TextSpan(

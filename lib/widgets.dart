@@ -252,7 +252,7 @@ class _SearchBoxState extends State<SearchBox> {
       padding: EdgeInsets.symmetric(horizontal: 15, vertical: 15),
       child: Container(
         width: MediaQuery.of(context).size.width,
-        height: MediaQuery.of(context).size.height / 15,
+        height: 54,
         decoration: BoxDecoration(
             color: Theme.of(context).scaffoldBackgroundColor,
             borderRadius: BorderRadius.circular(7),
