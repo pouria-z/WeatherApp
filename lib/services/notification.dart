@@ -7,11 +7,25 @@ class NotificationService {
       FlutterLocalNotificationsPlugin();
 
   static void initialize() {
-    final InitializationSettings initializationSettings =
-        InitializationSettings(
+    final InitializationSettings initializationSettings = InitializationSettings(
       android: AndroidInitializationSettings("ic_stat_name"),
     );
     _notificationsPlugin.initialize(initializationSettings);
+  }
+
+  static Future<void> createNotificationChannel() async {
+    var androidNotificationChannel = const AndroidNotificationChannel(
+      "WeatherApp",
+      "WeatherApp channel",
+      description: "Weather App Notification Channel",
+      playSound: true,
+      showBadge: true,
+      importance: Importance.max,
+    );
+    await _notificationsPlugin
+        .resolvePlatformSpecificImplementation<AndroidFlutterLocalNotificationsPlugin>()
+        ?.createNotificationChannel(androidNotificationChannel);
+    print("notification channel created successfully!");
   }
 
   static void display(RemoteMessage message) async {
