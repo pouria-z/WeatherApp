@@ -271,14 +271,8 @@ class _HomePage extends State<HomePage> {
                                       Text("Something went wrong! Please try again later."),
                                       IconButton(
                                         onPressed: () async {
-                                          await sendRequest(
-                                            weather,
-                                            weather.locCurrentWeather(),
-                                          );
-                                          await sendRequest(
-                                            weather,
-                                            weather.locForecastWeather(),
-                                          );
+                                          weather.locCurrentWeatherModel = weather.locCurrentWeather();
+                                          weather.locForecastWeatherModel = weather.locForecastWeather();
                                         },
                                         icon: Icon(
                                           Icons.refresh_rounded,
