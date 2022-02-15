@@ -22,7 +22,7 @@ bool showClear = false;
 
 class LoaderWidget extends StatelessWidget {
   const LoaderWidget({
-    Key key,
+    Key? key,
   }) : super(key: key);
 
   @override
@@ -135,7 +135,7 @@ class ForecastCard extends StatefulWidget {
   final temp;
   final icon;
 
-  const ForecastCard({Key key, this.date, this.temp, this.icon})
+  const ForecastCard({Key? key, this.date, this.temp, this.icon})
       : super(key: key);
 
   @override
@@ -185,11 +185,11 @@ class _ForecastCardState extends State<ForecastCard> {
 
 class ForecastCardList extends StatefulWidget {
   const ForecastCardList({
-    Key key,
-    @required this.fCityList,
-    @required this.fDateList,
-    @required this.fTempList,
-    @required this.fIconList,
+    Key? key,
+    required this.fCityList,
+    required this.fDateList,
+    required this.fTempList,
+    required this.fIconList,
   }) : super(key: key);
 
   final List fCityList;
@@ -232,7 +232,7 @@ class SearchBox extends StatefulWidget {
   final favoriteWidget;
 
   const SearchBox({
-    Key key,
+    Key? key,
     this.locIcon,
     this.onSubmitted,
     this.sizedBoxWidth,
@@ -294,7 +294,7 @@ class _SearchBoxState extends State<SearchBox> {
                           item.toLowerCase().startsWith(pattern.toLowerCase()))
                       .toList();
                 },
-                itemBuilder: (context, suggestion) {
+                itemBuilder: (context, dynamic suggestion) {
                   return ListTile(
                     leading: Icon(
                       Iconsax.search_normal_1,
@@ -311,7 +311,7 @@ class _SearchBoxState extends State<SearchBox> {
                   if (cityName.text.length >= 3) {
                     return suggestionsBox;
                   } else {
-                    return null;
+                    return Container();
                   }
                 },
                 onSuggestionSelected: widget.onSuggestionSelected,
@@ -394,7 +394,7 @@ class ListTiles extends StatefulWidget {
   final maxTemp;
   final wind;
 
-  const ListTiles({Key key, this.minTemp, this.maxTemp, this.wind})
+  const ListTiles({Key? key, this.minTemp, this.maxTemp, this.wind})
       : super(key: key);
 
   @override
@@ -485,21 +485,21 @@ class _ListTilesState extends State<ListTiles> {
 }
 
 class CurrentWeatherWidget extends StatefulWidget {
-  final String imagePath;
-  final String cityName;
+  final String? imagePath;
+  final String? cityName;
   final url;
   final temperature;
-  final String iconPath;
-  final String description;
+  final String? iconPath;
+  final String? description;
 
   const CurrentWeatherWidget({
-    Key key,
-    @required this.imagePath,
-    @required this.cityName,
-    @required this.url,
-    @required this.temperature,
-    @required this.iconPath,
-    @required this.description,
+    Key? key,
+    required this.imagePath,
+    required this.cityName,
+    required this.url,
+    required this.temperature,
+    required this.iconPath,
+    required this.description,
   }) : super(key: key);
 
   @override
@@ -517,7 +517,7 @@ class _CurrentWeatherWidgetState extends State<CurrentWeatherWidget> {
           ClipRRect(
             borderRadius: BorderRadius.circular(20),
             child: Image.asset(
-              widget.imagePath,
+              widget.imagePath!,
               height: MediaQuery.of(context).size.height / 3,
               width: MediaQuery.of(context).size.width,
               fit: BoxFit.cover,

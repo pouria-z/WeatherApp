@@ -11,8 +11,7 @@ import 'package:weather_app/screens/home.dart';
 import 'package:weather_app/key.dart';
 
 class Weather with ChangeNotifier {
-  Uri url;
-  bool apiHasProblem = false;
+  Uri? url;
 
   ///getLoc variables
   var lat;
@@ -42,14 +41,13 @@ class Weather with ChangeNotifier {
   bool gpsIsOn = false;
 
   Future getLocation() async {
-    Position position;
+    Position? position;
     if (Platform.isIOS) {
       GeolocatorPlatform.instance.requestPermission();
     }
     // Geolocator.requestPermission();
     try {
-      position = await Geolocator.getCurrentPosition(
-          desiredAccuracy: LocationAccuracy.low);
+      position = await Geolocator.getCurrentPosition(desiredAccuracy: LocationAccuracy.low);
     } catch (e) {
       print(e);
     }
@@ -62,71 +60,59 @@ class Weather with ChangeNotifier {
   }
 
   Future locCurrentWeather() async {
-    apiHasProblem = false;
-    url = Uri.parse(
-        "https://api.weatherbit.io/v2.0/current?lat=$lat&lon=$lon&key=$apiKey");
-    Response response = await get(url);
-    if (response.statusCode == 403) {
-      apiHasProblem = true;
-      notifyListeners();
-    } else {
-      var json = jsonDecode(response.body);
-      icon = json['data'][0]['weather']['icon'];
-      temp = json['data'][0]['temp'].round();
-      desc = json['data'][0]['weather']['description'];
-      wind = json['data'][0]['wind_spd'].round();
-      code = json['data'][0]['weather']['code'];
-      refreshController.refreshCompleted();
-    }
+    url = Uri.parse("https://api.weatherbit.io/v2.0/current?lat=$lat&lon=$lon&key=$apiKey");
+    Response response = await get(url!);
+    var json = jsonDecode(response.body);
+    icon = json['data'][0]['weather']['icon'];
+    temp = json['data'][0]['temp'].round();
+    desc = json['data'][0]['weather']['description'];
+    wind = json['data'][0]['wind_spd'].round();
+    code = json['data'][0]['weather']['code'];
+    refreshController.refreshCompleted();
+
     notifyListeners();
   }
 
   Future locForecastWeather() async {
-    apiHasProblem = false;
-    url = Uri.parse(
-        "https://api.weatherbit.io/v2.0/forecast/daily?lat=$lat&lon=$lon&key=$apiKey");
-    Response response = await get(url);
+    url = Uri.parse("https://api.weatherbit.io/v2.0/forecast/daily?lat=$lat&lon=$lon&key=$apiKey");
+    Response response = await get(url!);
     fCityList.clear();
     fIconList.clear();
     fTempList.clear();
     fMinTempList.clear();
     fMaxTempList.clear();
     fDateList.clear();
-    if (response.statusCode == 403) {
-      apiHasProblem = true;
-      notifyListeners();
-    } else {
-      var json = jsonDecode(response.body);
-      final DateFormat formatter = DateFormat('EEE, MMM d');
-      for (var item in json['data']) {
-        fCity = json['city_name'];
-        fIcon = item['weather']['icon'];
-        fTemp = item['temp'].round();
-        fMinTemp = json['data'][0]['min_temp'].round() - 2;
-        fMaxTemp = json['data'][0]['max_temp'].round().toInt() + 2;
-        timestamp = item['ts'];
-        var time = DateTime.fromMillisecondsSinceEpoch(timestamp * 1000);
-        fDate = formatter.format(time);
-        fCityList.add(fCity);
-        fIconList.add(fIcon);
-        fTempList.add(fTemp);
-        fMinTempList.add(fMinTemp);
-        fMaxTempList.add(fMaxTemp);
-        fDateList.add(fDate);
-      }
-      fDateList[0] = 'Today';
-      fDateList[1] = 'Tomorrow';
-      refreshController.refreshCompleted();
+
+    var json = jsonDecode(response.body);
+    final DateFormat formatter = DateFormat('EEE, MMM d');
+    for (var item in json['data']) {
+      fCity = json['city_name'];
+      fIcon = item['weather']['icon'];
+      fTemp = item['temp'].round();
+      fMinTemp = json['data'][0]['min_temp'].round() - 2;
+      fMaxTemp = json['data'][0]['max_temp'].round().toInt() + 2;
+      timestamp = item['ts'];
+      var time = DateTime.fromMillisecondsSinceEpoch(timestamp * 1000);
+      fDate = formatter.format(time);
+      fCityList.add(fCity);
+      fIconList.add(fIcon);
+      fTempList.add(fTemp);
+      fMinTempList.add(fMinTemp);
+      fMaxTempList.add(fMaxTemp);
+      fDateList.add(fDate);
     }
+    fDateList[0] = 'Today';
+    fDateList[1] = 'Tomorrow';
+    refreshController.refreshCompleted();
+
     notifyListeners();
   }
 
   Future currentWeather() async {
-    apiHasProblem = false;
     Uri canadaCurrentUrl = Uri.parse(
         "https://api.weatherbit.io/v2.0/forecast/daily?city=${cityName.text}&country=CA&key=$apiKey");
-    Uri currentUrl = Uri.parse(
-        "https://api.weatherbit.io/v2.0/current?city=${cityName.text}&key=$apiKey");
+    Uri currentUrl =
+        Uri.parse("https://api.weatherbit.io/v2.0/current?city=${cityName.text}&key=$apiKey");
     url = cityName.text == "Montreal" ||
             cityName.text == "Montréal" ||
             cityName.text == "Vancouver" ||
@@ -134,9 +120,8 @@ class Weather with ChangeNotifier {
             cityName.text == "Toronto"
         ? canadaCurrentUrl
         : currentUrl;
-    Response response = await get(url);
+    Response response = await get(url!);
     if (response.statusCode == 403) {
-      apiHasProblem = true;
       notifyListeners();
     } else {
       var json = jsonDecode(response.body);
@@ -151,7 +136,6 @@ class Weather with ChangeNotifier {
   }
 
   Future forecastWeather() async {
-    apiHasProblem = false;
     Uri canadaForecastUrl = Uri.parse(
         "https://api.weatherbit.io/v2.0/forecast/daily?city=${cityName.text}&country=CA&key=$apiKey");
     Uri forecastUrl = Uri.parse(
@@ -162,7 +146,7 @@ class Weather with ChangeNotifier {
             cityName.text == "ونکوور"
         ? canadaForecastUrl
         : forecastUrl;
-    Response response = await get(url);
+    Response response = await get(url!);
     fCityList.clear();
     fIconList.clear();
     fTempList.clear();
@@ -170,7 +154,6 @@ class Weather with ChangeNotifier {
     fMaxTempList.clear();
     fDateList.clear();
     if (response.statusCode == 403) {
-      apiHasProblem = true;
       notifyListeners();
     } else {
       var json = jsonDecode(response.body);
@@ -198,7 +181,7 @@ class Weather with ChangeNotifier {
     notifyListeners();
   }
 
-  String imageAsset() {
+  String? imageAsset() {
     if (code.toString() == "700" ||
         code.toString() == "711" ||
         code.toString() == "721" ||
@@ -232,9 +215,7 @@ class Weather with ChangeNotifier {
       return 'assets/images/cleard.jpg';
     } else if (code.toString() == "800" && icon.toString() == "c01n") {
       return 'assets/images/clearn.jpg';
-    } else if (code.toString() == "300" ||
-        code.toString() == "301" ||
-        code.toString() == "302") {
+    } else if (code.toString() == "300" || code.toString() == "301" || code.toString() == "302") {
       return 'assets/images/drizzle.jpg';
     } else if (code.toString() == "200" ||
         code.toString() == "201" ||

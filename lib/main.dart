@@ -13,8 +13,8 @@ import 'package:weather_app/services/services.dart';
 
 Future<void> _messageHandler(RemoteMessage message) async {
   print(
-      "notification on background received! title: '${message.notification.body}',"
-      " body: '${message.notification.body}'.");
+      "notification on background received! title: '${message.notification!.body}',"
+      " body: '${message.notification!.body}'.");
   // NotificationService.display(message);
 }
 

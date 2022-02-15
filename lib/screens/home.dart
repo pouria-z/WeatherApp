@@ -27,7 +27,7 @@ class _HomePage extends State<HomePage> {
     FirebaseMessaging.onMessage.listen((message) {
       NotificationService.display(message);
     });
-    WidgetsBinding.instance.addPostFrameCallback((timeStamp) async {
+    WidgetsBinding.instance!.addPostFrameCallback((timeStamp) async {
       await analytics.setCurrentScreen(screenName: "home_screen");
       await weather.getLocation();
       await weather.locCurrentWeather();
@@ -75,8 +75,8 @@ class _HomePage extends State<HomePage> {
               ],
             );
           },
-        );
-      },
+        ).then((value) => value as bool);
+      } as Future<bool> Function()?,
       child: Scaffold(
         body: SafeArea(
           child: Consumer<Weather>(
@@ -208,7 +208,7 @@ class _HomePage extends State<HomePage> {
                       ),
                       weather.timestamp == null && hasError == false
                           ? LoaderWidget()
-                          : hasError == true || weather.apiHasProblem == true
+                          : hasError == true
                               ? Column(
                                   children: [
                                     SizedBox(
