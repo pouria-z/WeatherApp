@@ -4,7 +4,12 @@ import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:iconsax/iconsax.dart';
 import 'package:pull_to_refresh/pull_to_refresh.dart';
+import 'package:weather_app/models/current_weather.dart';
+import 'package:weather_app/models/forecast_weather.dart';
+import 'package:weather_app/models/loc_current_weather.dart';
+import 'package:weather_app/models/loc_forecast_weather.dart';
 import 'package:weather_app/services/notification.dart';
 import 'package:weather_app/services/services.dart';
 import 'package:weather_app/widgets/widgets.dart';
@@ -20,6 +25,15 @@ class HomePage extends StatefulWidget {
 class _HomePage extends State<HomePage> {
   FirebaseAnalytics analytics = FirebaseAnalytics.instance;
 
+  String imageAsset() {
+    var weather = Provider.of<Weather>(context, listen: false);
+    if (weather.url.toString().contains("city")) {
+      return weather.currentModel!.data![0].weatherModel!.imageAsset();
+    } else {
+      return weather.locCurrentModel!.data[0].weatherModel!.imageAsset();
+    }
+  }
+
   @override
   void initState() {
     super.initState();
@@ -30,18 +44,14 @@ class _HomePage extends State<HomePage> {
     WidgetsBinding.instance!.addPostFrameCallback((timeStamp) async {
       await analytics.setCurrentScreen(screenName: "home_screen");
       await weather.getLocation();
-      await weather.locCurrentWeather();
-      await weather.locForecastWeather();
+      weather.locCurrentWeatherModel = weather.locCurrentWeather();
+      weather.locForecastWeatherModel = weather.locForecastWeather();
     });
   }
-
-  bool hasError = false;
 
   @override
   Widget build(BuildContext context) {
     var weather = Provider.of<Weather>(context, listen: false);
-    var size = MediaQuery.of(context).size;
-    var area = (size.height) * (size.width);
     return WillPopScope(
       onWillPop: () {
         return showDialog(
@@ -76,38 +86,23 @@ class _HomePage extends State<HomePage> {
             );
           },
         ).then((value) => value as bool);
-      } as Future<bool> Function()?,
+      },
       child: Scaffold(
         body: SafeArea(
           child: Consumer<Weather>(
             builder: (context, value, child) {
               return SmartRefresher(
                 onRefresh: () async {
-                  setState(() {
-                    hasError = false;
-                  });
                   if (weather.url.toString().contains('city')) {
-                    await sendRequest(
-                      weather,
-                      weather.currentWeather(),
-                    );
-                    await sendRequest(
-                      weather,
-                      weather.forecastWeather(),
-                    );
+                    weather.currentWeatherModel = weather.currentWeather();
+                    weather.forecastWeatherModel = weather.forecastWeather();
                   } else {
                     await sendRequest(
                       weather,
                       weather.getLocation(),
                     );
-                    await sendRequest(
-                      weather,
-                      weather.locCurrentWeather(),
-                    );
-                    await sendRequest(
-                      weather,
-                      weather.locForecastWeather(),
-                    );
+                    weather.locCurrentWeatherModel = weather.locCurrentWeather();
+                    weather.locForecastWeatherModel = weather.locForecastWeather();
                   }
                 },
                 controller: refreshController,
@@ -119,32 +114,20 @@ class _HomePage extends State<HomePage> {
                         locIcon: weather.url.toString().contains('city')
                             ? IconButton(
                                 icon: Icon(
-                                  Icons.location_on_rounded,
+                                  Iconsax.location,
                                   color: Colors.white,
                                 ),
                                 onPressed: () async {
                                   setState(() {
-                                    hasError = false;
                                     showClear = false;
-                                    cityName.text = "";
+                                    textEditingController.text = "";
                                   });
-                                  weather.timestamp = null;
-                                  weather.fCityList.clear();
-                                  weather.fDateList.clear();
-                                  weather.fTempList.clear();
-                                  weather.fIconList.clear();
                                   await sendRequest(
                                     weather,
                                     weather.getLocation(),
                                   );
-                                  await sendRequest(
-                                    weather,
-                                    weather.locCurrentWeather(),
-                                  );
-                                  await sendRequest(
-                                    weather,
-                                    weather.locForecastWeather(),
-                                  );
+                                  weather.locCurrentWeatherModel = weather.locCurrentWeather();
+                                  weather.locForecastWeatherModel = weather.locForecastWeather();
                                 },
                                 splashRadius: 20,
                               )
@@ -156,28 +139,14 @@ class _HomePage extends State<HomePage> {
                         onSuggestionSelected: (suggestion) async {
                           analytics.logEvent(
                               name: "clicked_on_suggestion", parameters: {'city': '$suggestion'});
-                          setState(() {
-                            hasError = false;
-                          });
-                          weather.timestamp = null;
-                          weather.fCityList.clear();
-                          weather.fDateList.clear();
-                          weather.fTempList.clear();
-                          weather.fIconList.clear();
-                          cityName.text = suggestion;
-                          await sendRequest(
-                            weather,
-                            weather.currentWeather(),
-                          );
-                          await sendRequest(
-                            weather,
-                            weather.forecastWeather(),
-                          );
+                          textEditingController.text = suggestion;
+                          weather.currentWeatherModel = weather.currentWeather();
+                          weather.forecastWeatherModel = weather.forecastWeather();
                         },
 
                         ///onSubmitted
                         onSubmitted: (value) async {
-                          if (cityName.text.isEmpty) {
+                          if (textEditingController.text.isEmpty) {
                             ScaffoldMessenger.of(context).showSnackBar(
                               SnackBar(
                                 content: Text("Please enter city name"),
@@ -186,55 +155,122 @@ class _HomePage extends State<HomePage> {
                           } else {
                             analytics.logEvent(
                                 name: "searched_by_keyboard",
-                                parameters: {'city': '${cityName.text}'});
-                            setState(() {
-                              hasError = false;
-                            });
-                            weather.timestamp = null;
-                            weather.fCityList.clear();
-                            weather.fDateList.clear();
-                            weather.fTempList.clear();
-                            weather.fIconList.clear();
-                            await sendRequest(
-                              weather,
-                              weather.currentWeather(),
-                            );
-                            await sendRequest(
-                              weather,
-                              weather.forecastWeather(),
-                            );
+                                parameters: {'city': '${textEditingController.text}'});
+                            weather.currentWeatherModel = weather.currentWeather();
+                            weather.forecastWeatherModel = weather.forecastWeather();
                           }
                         },
                       ),
-                      weather.timestamp == null && hasError == false
-                          ? LoaderWidget()
-                          : hasError == true
-                              ? Column(
-                                  children: [
-                                    SizedBox(
-                                      height: (MediaQuery.of(context).size.height / 2) -
-                                          AppBar().preferredSize.height,
+                      weather.url.toString().contains('city')
+                          ? FutureBuilder<CurrentWeatherModel>(
+                              future: weather.currentWeatherModel,
+                              builder: (context, snapshot) {
+                                if (snapshot.hasError) {
+                                  return Column(
+                                    children: [
+                                      SizedBox(
+                                        height: (MediaQuery.of(context).size.height / 2) -
+                                            AppBar().preferredSize.height,
+                                      ),
+                                      Text("Something went wrong! Please try again later."),
+                                      IconButton(
+                                        onPressed: () async {
+                                          weather.currentWeatherModel = weather.currentWeather();
+                                          weather.forecastWeatherModel = weather.forecastWeather();
+                                        },
+                                        icon: Icon(
+                                          Icons.refresh_rounded,
+                                          color: Colors.white54,
+                                        ),
+                                        splashRadius: 20,
+                                      )
+                                    ],
+                                  );
+                                }
+                                if (snapshot.connectionState == ConnectionState.waiting) {
+                                  return TopLoading();
+                                } else if (snapshot.hasData) {
+                                  var currentData = snapshot.data!.data![0];
+                                  return Padding(
+                                    padding: EdgeInsets.symmetric(horizontal: 15, vertical: 5),
+                                    child: Column(
+                                      children: [
+                                        CurrentWeatherWidget(
+                                          imagePath: imageAsset(),
+                                          cityName: currentData.cityName,
+                                          url: weather.url,
+                                          temperature: currentData.temp,
+                                          iconPath: currentData.weatherModel!.icon,
+                                          description: currentData.weatherModel!.description,
+                                        ),
+                                        FutureBuilder<ForecastWeatherModel>(
+                                          future: weather.forecastWeatherModel,
+                                          builder: (context, snapshot) {
+                                            if (snapshot.connectionState ==
+                                                ConnectionState.waiting) {
+                                              return BottomLoading();
+                                            } else if (snapshot.hasData) {
+                                              var forecastData = snapshot.data!.data![0];
+                                              return Column(
+                                                children: [
+                                                  ListTiles(
+                                                    minTemp: forecastData.minTemp != null
+                                                        ? forecastData.minTemp.toString() + "°"
+                                                        : "",
+                                                    maxTemp: forecastData.maxTemp != null
+                                                        ? forecastData.maxTemp.toString() + "°"
+                                                        : "",
+                                                    wind: currentData.windSpd != null
+                                                        ? currentData.windSpd.toString() + " km/h"
+                                                        : "",
+                                                  ),
+                                                  SizedBox(
+                                                    height:
+                                                        MediaQuery.of(context).size.height / 4.5,
+                                                    child: ListView.builder(
+                                                      scrollDirection: Axis.horizontal,
+                                                      physics: BouncingScrollPhysics(),
+                                                      shrinkWrap: true,
+                                                      itemCount: snapshot.data!.data!.length,
+                                                      itemBuilder: (context, index) {
+                                                        var item = snapshot.data!.data![index];
+                                                        return ForecastCard(
+                                                          date: weather.forecastDate[index],
+                                                          temp: item.temp,
+                                                          icon: item.weatherModel!.icon,
+                                                        );
+                                                      },
+                                                    ),
+                                                  ),
+                                                ],
+                                              );
+                                            } else {
+                                              return Container();
+                                            }
+                                          },
+                                        ),
+                                      ],
                                     ),
-                                    Text("Something went wrong! Please try again later."),
-                                    IconButton(
-                                      onPressed: () async {
-                                        setState(() {
-                                          hasError = false;
-                                        });
-                                        if (weather.url.toString().contains('city')) {
-                                          await sendRequest(
-                                            weather,
-                                            weather.currentWeather(),
-                                          );
-                                          await sendRequest(
-                                            weather,
-                                            weather.forecastWeather(),
-                                          );
-                                        } else {
-                                          await sendRequest(
-                                            weather,
-                                            weather.getLocation(),
-                                          );
+                                  );
+                                } else {
+                                  return Container();
+                                }
+                              },
+                            )
+                          : FutureBuilder<LocCurrentWeatherModel>(
+                              future: weather.locCurrentWeatherModel,
+                              builder: (context, snapshot) {
+                                if (snapshot.hasError) {
+                                  print(snapshot.stackTrace);
+                                  return Column(
+                                    children: [
+                                      SizedBox(
+                                        height: (MediaQuery.of(context).size.height / 2) -
+                                            AppBar().preferredSize.height,
+                                      ),
+                                      Text("Something went wrong! Please try again later."),
+                                      IconButton(
+                                        onPressed: () async {
                                           await sendRequest(
                                             weather,
                                             weather.locCurrentWeather(),
@@ -243,48 +279,86 @@ class _HomePage extends State<HomePage> {
                                             weather,
                                             weather.locForecastWeather(),
                                           );
-                                        }
-                                      },
-                                      icon: Icon(
-                                        Icons.refresh_rounded,
-                                        color: Colors.white54,
-                                      ),
-                                      splashRadius: 20,
-                                    )
-                                  ],
-                                )
-                              : Padding(
-                                  padding: EdgeInsets.symmetric(horizontal: 15, vertical: 5),
-                                  child: Column(
-                                    children: [
-                                      CurrentWeatherWidget(
-                                        imagePath: weather.imageAsset(),
-                                        cityName: weather.fCity,
-                                        url: weather.url,
-                                        temperature: weather.temp,
-                                        iconPath: weather.icon,
-                                        description: weather.desc,
-                                      ),
-                                      ListTiles(
-                                        minTemp: weather.fMinTemp != null
-                                            ? weather.fMinTemp.toString() + "°"
-                                            : "",
-                                        maxTemp: weather.fMaxTemp != null
-                                            ? weather.fMaxTemp.toString() + "°"
-                                            : "",
-                                        wind: weather.wind != null
-                                            ? weather.wind.toString() + " km/h"
-                                            : "",
-                                      ),
-                                      ForecastCardList(
-                                        fCityList: weather.fCityList,
-                                        fDateList: weather.fDateList,
-                                        fTempList: weather.fTempList,
-                                        fIconList: weather.fIconList,
-                                      ),
+                                        },
+                                        icon: Icon(
+                                          Icons.refresh_rounded,
+                                          color: Colors.white54,
+                                        ),
+                                        splashRadius: 20,
+                                      )
                                     ],
-                                  ),
-                                ),
+                                  );
+                                }
+                                if (snapshot.connectionState == ConnectionState.waiting) {
+                                  return TopLoading();
+                                } else if (snapshot.hasData) {
+                                  var currentData = snapshot.data!.data[0];
+                                  return Padding(
+                                    padding: EdgeInsets.symmetric(horizontal: 15, vertical: 5),
+                                    child: Column(
+                                      children: [
+                                        CurrentWeatherWidget(
+                                          imagePath: imageAsset(),
+                                          cityName: currentData.cityName,
+                                          url: weather.url,
+                                          temperature: currentData.temp,
+                                          iconPath: currentData.weatherModel!.icon,
+                                          description: currentData.weatherModel!.description,
+                                        ),
+                                        FutureBuilder<LocForecastWeatherModel>(
+                                          future: weather.locForecastWeatherModel,
+                                          builder: (context, snapshot) {
+                                            if (snapshot.connectionState ==
+                                                ConnectionState.waiting) {
+                                              return BottomLoading();
+                                            } else if (snapshot.hasData) {
+                                              var forecastData = snapshot.data!.data[0];
+                                              return Column(
+                                                children: [
+                                                  ListTiles(
+                                                    minTemp: forecastData.minTemp != null
+                                                        ? forecastData.minTemp.toString() + "°"
+                                                        : "",
+                                                    maxTemp: forecastData.maxTemp != null
+                                                        ? forecastData.maxTemp.toString() + "°"
+                                                        : "",
+                                                    wind: currentData.windSpd != null
+                                                        ? currentData.windSpd.toString() + " km/h"
+                                                        : "",
+                                                  ),
+                                                  SizedBox(
+                                                    height:
+                                                        MediaQuery.of(context).size.height / 4.5,
+                                                    child: ListView.builder(
+                                                      scrollDirection: Axis.horizontal,
+                                                      physics: BouncingScrollPhysics(),
+                                                      shrinkWrap: true,
+                                                      itemCount: snapshot.data!.data.length,
+                                                      itemBuilder: (context, index) {
+                                                        var item = snapshot.data!.data[index];
+                                                        return ForecastCard(
+                                                          date: weather.locForecastDate[index],
+                                                          temp: item.temp,
+                                                          icon: item.weatherModel!.icon,
+                                                        );
+                                                      },
+                                                    ),
+                                                  ),
+                                                ],
+                                              );
+                                            } else {
+                                              return Container();
+                                            }
+                                          },
+                                        ),
+                                      ],
+                                    ),
+                                  );
+                                } else {
+                                  return Container();
+                                }
+                              },
+                            ),
                     ],
                   ),
                 ),
@@ -301,13 +375,11 @@ class _HomePage extends State<HomePage> {
       await future.timeout(Duration(seconds: 15));
     } on TimeoutException catch (e) {
       setState(() {
-        hasError = true;
         refreshController.refreshFailed();
       });
       throw e;
     } on SocketException catch (e) {
       setState(() {
-        hasError = true;
         refreshController.refreshFailed();
       });
       throw e;
