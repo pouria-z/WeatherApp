@@ -6,10 +6,10 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:parse_server_sdk_flutter/parse_server_sdk.dart';
 import 'package:provider/provider.dart';
-import 'package:weather_app/home.dart';
+import 'package:weather_app/screens/home.dart';
 import 'package:weather_app/key.dart';
-import 'package:weather_app/notification.dart';
-import 'package:weather_app/services.dart';
+import 'package:weather_app/services/notification.dart';
+import 'package:weather_app/services/services.dart';
 
 Future<void> _messageHandler(RemoteMessage message) async {
   print(

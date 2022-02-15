@@ -6,8 +6,8 @@ import 'dart:convert';
 import 'package:http/http.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:intl/intl.dart';
-import 'package:weather_app/widgets.dart';
-import 'package:weather_app/home.dart';
+import 'package:weather_app/widgets/widgets.dart';
+import 'package:weather_app/screens/home.dart';
 import 'package:weather_app/key.dart';
 
 class Weather with ChangeNotifier {

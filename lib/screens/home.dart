@@ -5,9 +5,9 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:pull_to_refresh/pull_to_refresh.dart';
-import 'package:weather_app/notification.dart';
-import 'package:weather_app/services.dart';
-import 'package:weather_app/widgets.dart';
+import 'package:weather_app/services/notification.dart';
+import 'package:weather_app/services/services.dart';
+import 'package:weather_app/widgets/widgets.dart';
 import 'package:provider/provider.dart';
 
 RefreshController refreshController = RefreshController(initialRefresh: false);

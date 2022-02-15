@@ -7,7 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:iconsax/iconsax.dart';
 import 'package:url_launcher/url_launcher.dart';
-import 'package:weather_app/widgets.dart';
+import 'package:weather_app/widgets/widgets.dart';
 
 class Info extends StatefulWidget {
   @override

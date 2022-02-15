@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_typeahead/flutter_typeahead.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:weather_app/all_cities.dart';
-import 'package:weather_app/info.dart';
+import 'package:weather_app/screens/info.dart';
 import 'package:iconsax/iconsax.dart';
 
 const myTextStyle = TextStyle(
