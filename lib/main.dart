@@ -15,7 +15,6 @@ Future<void> _messageHandler(RemoteMessage message) async {
   print(
       "notification on background received! title: '${message.notification!.body}',"
       " body: '${message.notification!.body}'.");
-  // NotificationService.display(message);
 }
 
 void main() async {
@@ -23,9 +22,9 @@ void main() async {
   await Firebase.initializeApp();
   if (Platform.isAndroid) {
     NotificationService.initialize();
+    await NotificationService.createNotificationChannel();
   }
   FirebaseMessaging.onBackgroundMessage(_messageHandler);
-  FirebaseMessaging.instance.getToken().then((value) => print(value));
   final keyParseServerUrl = 'https://parseapi.back4app.com';
   await Parse().initialize(
     keyApplicationId,
@@ -35,7 +34,7 @@ void main() async {
     liveQueryUrl: serverUrl,
   );
   await getApiKey();
-  await getNotification();
+  await updateApiKey();
   FirebaseAnalytics.instance.logAppOpen();
   runApp(
     ChangeNotifierProvider(
