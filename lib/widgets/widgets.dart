@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_typeahead/flutter_typeahead.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:weather_app/all_cities.dart';
-import 'package:weather_app/info.dart';
+import 'package:weather_app/screens/info.dart';
 import 'package:iconsax/iconsax.dart';
 
 const myTextStyle = TextStyle(
@@ -17,12 +17,12 @@ const myTextStyleBold = TextStyle(
   fontFamily: 'Roboto',
   fontWeight: FontWeight.bold,
 );
-final cityName = TextEditingController();
+final textEditingController = TextEditingController();
 bool showClear = false;
 
-class LoaderWidget extends StatelessWidget {
-  const LoaderWidget({
-    Key key,
+class TopLoading extends StatelessWidget {
+  const TopLoading({
+    Key? key,
   }) : super(key: key);
 
   @override
@@ -34,91 +34,178 @@ class LoaderWidget extends StatelessWidget {
           padding: EdgeInsets.symmetric(horizontal: 15, vertical: 5),
           child: Column(
             children: [
-              Column(
-                children: [
-                  Container(
-                    height: MediaQuery.of(context).size.height / 3,
-                    width: MediaQuery.of(context).size.width,
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(20),
+              Container(
+                height: MediaQuery.of(context).size.height / 3,
+                width: MediaQuery.of(context).size.width,
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(20),
+                  color: Colors.white,
+                ),
+              ),
+              SizedBox(
+                height: MediaQuery.of(context).size.height / 40,
+              ),
+              ListTile(
+                leading: Image.asset(
+                  'assets/icons/mintemp.png',
+                  width: MediaQuery.of(context).size.width / 12,
+                  height: MediaQuery.of(context).size.height / 25,
+                ),
+                title: Container(
+                  height: 5,
+                  decoration:
+                      BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(30)),
+                ),
+                trailing: Container(height: 2, width: 10, color: Colors.white),
+              ),
+              ListTile(
+                leading: Image.asset(
+                  'assets/icons/maxtemp.png',
+                  width: MediaQuery.of(context).size.width / 12,
+                  height: MediaQuery.of(context).size.height / 25,
+                ),
+                title: Container(
+                  height: 5,
+                  decoration:
+                      BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(30)),
+                ),
+                trailing: Container(height: 2, width: 10, color: Colors.white),
+              ),
+              ListTile(
+                leading: Image.asset(
+                  'assets/icons/wind.png',
+                  width: MediaQuery.of(context).size.width / 12,
+                  height: MediaQuery.of(context).size.height / 25,
+                ),
+                title: Container(
+                  height: 5,
+                  decoration:
+                      BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(30)),
+                ),
+                trailing: Container(height: 2, width: 10, color: Colors.white),
+              ),
+              SizedBox(
+                height: MediaQuery.of(context).size.height / 90,
+              ),
+              Divider(
+                thickness: 0.2,
+                color: Colors.white,
+              ),
+              SizedBox(
+                height: MediaQuery.of(context).size.height / 40,
+              ),
+              SizedBox(
+                height: MediaQuery.of(context).size.height / 4.5,
+                child: ListView.builder(
+                  scrollDirection: Axis.horizontal,
+                  physics: BouncingScrollPhysics(),
+                  shrinkWrap: true,
+                  itemCount: 16,
+                  itemBuilder: (context, index) {
+                    return Image.asset(
+                      'assets/icons/c01n.png',
+                      width: MediaQuery.of(context).size.width / 3,
                       color: Colors.white,
-                    ),
-                  ),
-                  SizedBox(
-                    height: MediaQuery.of(context).size.height / 40,
-                  ),
-                  ListTile(
-                    leading: Image.asset(
-                      'assets/icons/mintemp.png',
-                      width: MediaQuery.of(context).size.width / 12,
-                      height: MediaQuery.of(context).size.height / 25,
-                    ),
-                    title: Container(
-                      height: 5,
-                      decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(30)),
-                    ),
-                    trailing:
-                        Container(height: 2, width: 10, color: Colors.white),
-                  ),
-                  ListTile(
-                    leading: Image.asset(
-                      'assets/icons/maxtemp.png',
-                      width: MediaQuery.of(context).size.width / 12,
-                      height: MediaQuery.of(context).size.height / 25,
-                    ),
-                    title: Container(
-                      height: 5,
-                      decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(30)),
-                    ),
-                    trailing:
-                        Container(height: 2, width: 10, color: Colors.white),
-                  ),
-                  ListTile(
-                    leading: Image.asset(
-                      'assets/icons/wind.png',
-                      width: MediaQuery.of(context).size.width / 12,
-                      height: MediaQuery.of(context).size.height / 25,
-                    ),
-                    title: Container(
-                      height: 5,
-                      decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(30)),
-                    ),
-                    trailing:
-                        Container(height: 2, width: 10, color: Colors.white),
-                  ),
-                  SizedBox(
-                    height: MediaQuery.of(context).size.height / 90,
-                  ),
-                  Divider(
-                    thickness: 0.2,
-                    color: Colors.white,
-                  ),
-                  SizedBox(
-                    height: MediaQuery.of(context).size.height / 40,
-                  ),
-                  SizedBox(
-                    height: MediaQuery.of(context).size.height / 4.5,
-                    child: ListView.builder(
-                      scrollDirection: Axis.horizontal,
-                      physics: BouncingScrollPhysics(),
-                      shrinkWrap: true,
-                      itemCount: 16,
-                      itemBuilder: (context, index) {
-                        return Image.asset(
-                          'assets/icons/c01n.png',
-                          width: MediaQuery.of(context).size.width / 3,
-                          color: Colors.white,
-                        );
-                      },
-                    ),
-                  ),
-                ],
+                    );
+                  },
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+      baseColor: Theme.of(context).primaryColor,
+      highlightColor: Theme.of(context).scaffoldBackgroundColor,
+    );
+  }
+}
+
+class BottomLoading extends StatelessWidget {
+  const BottomLoading({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Shimmer.fromColors(
+      direction: ShimmerDirection.ltr,
+      child: SingleChildScrollView(
+        child: Padding(
+          padding: EdgeInsets.symmetric(horizontal: 15, vertical: 5),
+          child: Column(
+            children: [
+              Container(
+                height: MediaQuery.of(context).size.height / 3,
+                width: MediaQuery.of(context).size.width,
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(20),
+                ),
+              ),
+              SizedBox(
+                height: MediaQuery.of(context).size.height / 40,
+              ),
+              ListTile(
+                leading: Image.asset(
+                  'assets/icons/mintemp.png',
+                  width: MediaQuery.of(context).size.width / 12,
+                  height: MediaQuery.of(context).size.height / 25,
+                ),
+                title: Container(
+                  height: 5,
+                  decoration:
+                      BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(30)),
+                ),
+                trailing: Container(height: 2, width: 10, color: Colors.white),
+              ),
+              ListTile(
+                leading: Image.asset(
+                  'assets/icons/maxtemp.png',
+                  width: MediaQuery.of(context).size.width / 12,
+                  height: MediaQuery.of(context).size.height / 25,
+                ),
+                title: Container(
+                  height: 5,
+                  decoration:
+                      BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(30)),
+                ),
+                trailing: Container(height: 2, width: 10, color: Colors.white),
+              ),
+              ListTile(
+                leading: Image.asset(
+                  'assets/icons/wind.png',
+                  width: MediaQuery.of(context).size.width / 12,
+                  height: MediaQuery.of(context).size.height / 25,
+                ),
+                title: Container(
+                  height: 5,
+                  decoration:
+                      BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(30)),
+                ),
+                trailing: Container(height: 2, width: 10, color: Colors.white),
+              ),
+              SizedBox(
+                height: MediaQuery.of(context).size.height / 90,
+              ),
+              Divider(
+                thickness: 0.2,
+                color: Colors.white,
+              ),
+              SizedBox(
+                height: MediaQuery.of(context).size.height / 40,
+              ),
+              SizedBox(
+                height: MediaQuery.of(context).size.height / 4.5,
+                child: ListView.builder(
+                  scrollDirection: Axis.horizontal,
+                  physics: BouncingScrollPhysics(),
+                  shrinkWrap: true,
+                  itemCount: 16,
+                  itemBuilder: (context, index) {
+                    return Image.asset(
+                      'assets/icons/c01n.png',
+                      width: MediaQuery.of(context).size.width / 3,
+                      color: Colors.white,
+                    );
+                  },
+                ),
               ),
             ],
           ),
@@ -135,8 +222,7 @@ class ForecastCard extends StatefulWidget {
   final temp;
   final icon;
 
-  const ForecastCard({Key key, this.date, this.temp, this.icon})
-      : super(key: key);
+  const ForecastCard({Key? key, this.date, this.temp, this.icon}) : super(key: key);
 
   @override
   _ForecastCardState createState() => _ForecastCardState();
@@ -147,15 +233,13 @@ class _ForecastCardState extends State<ForecastCard> {
   Widget build(BuildContext context) {
     return Container(
       width: MediaQuery.of(context).size.width / 3,
-      decoration: BoxDecoration(
-          color: Theme.of(context).scaffoldBackgroundColor,
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black26,
-              spreadRadius: 1,
-              blurRadius: 30,
-            ),
-          ]),
+      decoration: BoxDecoration(color: Theme.of(context).scaffoldBackgroundColor, boxShadow: [
+        BoxShadow(
+          color: Colors.black26,
+          spreadRadius: 1,
+          blurRadius: 30,
+        ),
+      ]),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
@@ -185,11 +269,11 @@ class _ForecastCardState extends State<ForecastCard> {
 
 class ForecastCardList extends StatefulWidget {
   const ForecastCardList({
-    Key key,
-    @required this.fCityList,
-    @required this.fDateList,
-    @required this.fTempList,
-    @required this.fIconList,
+    Key? key,
+    required this.fCityList,
+    required this.fDateList,
+    required this.fTempList,
+    required this.fIconList,
   }) : super(key: key);
 
   final List fCityList;
@@ -232,7 +316,7 @@ class SearchBox extends StatefulWidget {
   final favoriteWidget;
 
   const SearchBox({
-    Key key,
+    Key? key,
     this.locIcon,
     this.onSubmitted,
     this.sizedBoxWidth,
@@ -290,11 +374,10 @@ class _SearchBoxState extends State<SearchBox> {
               child: TypeAheadField(
                 suggestionsCallback: (String pattern) async {
                   return CitiesService.cities
-                      .where((item) =>
-                          item.toLowerCase().startsWith(pattern.toLowerCase()))
+                      .where((item) => item.toLowerCase().startsWith(pattern.toLowerCase()))
                       .toList();
                 },
-                itemBuilder: (context, suggestion) {
+                itemBuilder: (context, dynamic suggestion) {
                   return ListTile(
                     leading: Icon(
                       Iconsax.search_normal_1,
@@ -308,10 +391,10 @@ class _SearchBoxState extends State<SearchBox> {
                   );
                 },
                 transitionBuilder: (context, suggestionsBox, controller) {
-                  if (cityName.text.length >= 3) {
+                  if (textEditingController.text.length >= 3) {
                     return suggestionsBox;
                   } else {
-                    return null;
+                    return Container();
                   }
                 },
                 onSuggestionSelected: widget.onSuggestionSelected,
@@ -340,7 +423,7 @@ class _SearchBoxState extends State<SearchBox> {
                   style: myTextStyle.copyWith(fontSize: 16),
                   cursorColor: Colors.white,
                   cursorWidth: 1.5,
-                  controller: cityName,
+                  controller: textEditingController,
                   textInputAction: TextInputAction.search,
                   decoration: InputDecoration(
                     icon: Icon(
@@ -374,7 +457,7 @@ class _SearchBoxState extends State<SearchBox> {
                 ? IconButton(
                     icon: Icon(Icons.clear_rounded),
                     onPressed: () {
-                      cityName.clear();
+                      textEditingController.clear();
                       setState(() {
                         showClear = false;
                       });
@@ -394,8 +477,7 @@ class ListTiles extends StatefulWidget {
   final maxTemp;
   final wind;
 
-  const ListTiles({Key key, this.minTemp, this.maxTemp, this.wind})
-      : super(key: key);
+  const ListTiles({Key? key, this.minTemp, this.maxTemp, this.wind}) : super(key: key);
 
   @override
   _ListTilesState createState() => _ListTilesState();
@@ -485,22 +567,22 @@ class _ListTilesState extends State<ListTiles> {
 }
 
 class CurrentWeatherWidget extends StatefulWidget {
-  final String imagePath;
-  final String cityName;
+  const CurrentWeatherWidget({
+    Key? key,
+    required this.imagePath,
+    required this.cityName,
+    required this.url,
+    required this.temperature,
+    required this.iconPath,
+    required this.description,
+  }) : super(key: key);
+
+  final String? imagePath;
+  final String? cityName;
   final url;
   final temperature;
-  final String iconPath;
-  final String description;
-
-  const CurrentWeatherWidget({
-    Key key,
-    @required this.imagePath,
-    @required this.cityName,
-    @required this.url,
-    @required this.temperature,
-    @required this.iconPath,
-    @required this.description,
-  }) : super(key: key);
+  final String? iconPath;
+  final String? description;
 
   @override
   _CurrentWeatherWidgetState createState() => _CurrentWeatherWidgetState();
@@ -510,14 +592,13 @@ class _CurrentWeatherWidgetState extends State<CurrentWeatherWidget> {
   @override
   Widget build(BuildContext context) {
     var size = MediaQuery.of(context).size;
-    var area = (size.height) * (size.width);
     return Container(
       child: Stack(
         children: [
           ClipRRect(
             borderRadius: BorderRadius.circular(20),
             child: Image.asset(
-              widget.imagePath,
+              widget.imagePath!,
               height: MediaQuery.of(context).size.height / 3,
               width: MediaQuery.of(context).size.width,
               fit: BoxFit.cover,
@@ -536,8 +617,7 @@ class _CurrentWeatherWidgetState extends State<CurrentWeatherWidget> {
                     child: FittedBox(
                       fit: BoxFit.contain,
                       child: Text(
-                        widget.cityName != null &&
-                                widget.url.toString().contains('city')
+                        widget.cityName != null && widget.url.toString().contains('city')
                             ? widget.cityName.toString()
                             : widget.cityName != null
                                 ? "📍" + widget.cityName.toString()
@@ -559,9 +639,7 @@ class _CurrentWeatherWidgetState extends State<CurrentWeatherWidget> {
                 child: FittedBox(
                   fit: BoxFit.fitHeight,
                   child: Text(
-                    widget.temperature != null
-                        ? " " + widget.temperature.toString() + "°"
-                        : "",
+                    widget.temperature != null ? " " + widget.temperature.toString() + "°" : "",
                     style: myTextStyle.copyWith(
                       fontWeight: FontWeight.w700,
                       color: widget.imagePath == 'assets/images/snow.jpg' ||
@@ -582,9 +660,7 @@ class _CurrentWeatherWidgetState extends State<CurrentWeatherWidget> {
                 child: FittedBox(
                   fit: BoxFit.fitHeight,
                   child: Text(
-                    widget.description != null
-                        ? widget.description.toString()
-                        : "Loading",
+                    widget.description != null ? widget.description.toString() : "Loading",
                     style: TextStyle(
                       color: widget.imagePath == 'assets/images/mist.jpg'
                           ? Colors.black
@@ -600,8 +676,7 @@ class _CurrentWeatherWidgetState extends State<CurrentWeatherWidget> {
         alignment: Alignment.center,
       ),
       decoration: BoxDecoration(
-          color: Theme.of(context).primaryColor,
-          borderRadius: BorderRadius.circular(20)),
+          color: Theme.of(context).primaryColor, borderRadius: BorderRadius.circular(20)),
       height: MediaQuery.of(context).size.height / 3,
       width: MediaQuery.of(context).size.width,
     );

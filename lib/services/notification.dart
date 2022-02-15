@@ -29,8 +29,8 @@ class NotificationService {
 
     await _notificationsPlugin.show(
       id.toInt(),
-      message.notification.title,
-      message.notification.body,
+      message.notification!.title,
+      message.notification!.body,
       notificationDetails,
     );
   }
