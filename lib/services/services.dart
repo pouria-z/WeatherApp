@@ -10,6 +10,7 @@ import 'package:weather_app/models/current_weather.dart';
 import 'package:weather_app/models/forecast_weather.dart';
 import 'package:weather_app/models/loc_current_weather.dart';
 import 'package:weather_app/models/loc_forecast_weather.dart';
+import 'package:weather_app/screens/location.dart';
 import 'package:weather_app/widgets/widgets.dart';
 import 'package:weather_app/screens/home.dart';
 import 'package:weather_app/key.dart';
@@ -18,30 +19,9 @@ class Weather with ChangeNotifier {
   String apiUrl = "https://api.weatherbit.io/v2.0/";
   late Uri url = Uri.parse("");
 
-  ///getLoc variables
   var lat;
   var lon;
 
-  ///currentWeather variables
-  // var icon;
-  // var temp;
-  // var desc;
-  // var wind;
-  // var code;
-
-  ///forecast variables
-  // var fCity;
-  // var fIcon;
-  // var fTemp;
-  // var fMinTemp;
-  // var fMaxTemp;
-  // var timestamp;
-  // var fDate;
-  // List fCityList = [];
-  // List fIconList = [];
-  // List fTempList = [];
-  // List fMinTempList = [];
-  // List fMaxTempList = [];
   bool gpsIsOn = false;
 
   Future getLocation() async {

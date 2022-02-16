@@ -39,7 +39,9 @@ class _InfoState extends State<Info> {
         backgroundColor: Theme.of(context).scaffoldBackgroundColor,
         title: Text(
           "Info",
-          style: myTextStyleBold,
+          style: TextStyle(
+            fontWeight: FontWeight.bold,
+          ),
         ),
         centerTitle: true,
       ),
@@ -71,7 +73,9 @@ class _InfoState extends State<Info> {
                           ),
                           title: Text(
                             "Contact Me",
-                            style: myTextStyleBold,
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                            ),
                           ),
                           trailing: IconButton(
                             icon: Icon(
@@ -92,7 +96,9 @@ class _InfoState extends State<Info> {
                           ),
                           title: Text(
                             "Rate This App",
-                            style: myTextStyleBold,
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                            ),
                           ),
                           trailing: IconButton(
                             icon: Icon(
@@ -119,7 +125,9 @@ class _InfoState extends State<Info> {
                                 ),
                                 title: Text(
                                   "My Other Apps",
-                                  style: myTextStyleBold,
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                  ),
                                 ),
                                 trailing: IconButton(
                                   icon: Icon(
@@ -138,13 +146,10 @@ class _InfoState extends State<Info> {
                           TextSpan(children: [
                             TextSpan(
                               text: "Data provided by: ",
-                              style: myTextStyle.copyWith(
-                                fontSize: 14,
-                              ),
                             ),
                             TextSpan(
                               text: "weatherbit.io",
-                              style: myTextStyle.copyWith(
+                              style: TextStyle(
                                 fontSize: 14,
                                 color: Colors.blueAccent,
                                 decoration: TextDecoration.underline,

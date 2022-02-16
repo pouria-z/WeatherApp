@@ -1,3 +1,4 @@
+import 'package:animate_do/animate_do.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_typeahead/flutter_typeahead.dart';
@@ -6,17 +7,6 @@ import 'package:weather_app/all_cities.dart';
 import 'package:weather_app/screens/info.dart';
 import 'package:iconsax/iconsax.dart';
 
-const myTextStyle = TextStyle(
-  color: Colors.white,
-  fontSize: 18,
-  fontFamily: 'Roboto',
-);
-const myTextStyleBold = TextStyle(
-  color: Colors.white,
-  fontSize: 18,
-  fontFamily: 'Roboto',
-  fontWeight: FontWeight.bold,
-);
 final textEditingController = TextEditingController();
 bool showClear = false;
 
@@ -128,87 +118,77 @@ class BottomLoading extends StatelessWidget {
     return Shimmer.fromColors(
       direction: ShimmerDirection.ltr,
       child: SingleChildScrollView(
-        child: Padding(
-          padding: EdgeInsets.symmetric(horizontal: 15, vertical: 5),
-          child: Column(
-            children: [
-              Container(
-                height: MediaQuery.of(context).size.height / 3,
-                width: MediaQuery.of(context).size.width,
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(20),
-                ),
+        child: Column(
+          children: [
+            SizedBox(
+              height: MediaQuery.of(context).size.height / 40,
+            ),
+            ListTile(
+              leading: Image.asset(
+                'assets/icons/mintemp.png',
+                width: MediaQuery.of(context).size.width / 12,
+                height: MediaQuery.of(context).size.height / 25,
               ),
-              SizedBox(
-                height: MediaQuery.of(context).size.height / 40,
+              title: Container(
+                height: 5,
+                decoration:
+                    BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(30)),
               ),
-              ListTile(
-                leading: Image.asset(
-                  'assets/icons/mintemp.png',
-                  width: MediaQuery.of(context).size.width / 12,
-                  height: MediaQuery.of(context).size.height / 25,
-                ),
-                title: Container(
-                  height: 5,
-                  decoration:
-                      BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(30)),
-                ),
-                trailing: Container(height: 2, width: 10, color: Colors.white),
+              trailing: Container(height: 2, width: 10, color: Colors.white),
+            ),
+            ListTile(
+              leading: Image.asset(
+                'assets/icons/maxtemp.png',
+                width: MediaQuery.of(context).size.width / 12,
+                height: MediaQuery.of(context).size.height / 25,
               ),
-              ListTile(
-                leading: Image.asset(
-                  'assets/icons/maxtemp.png',
-                  width: MediaQuery.of(context).size.width / 12,
-                  height: MediaQuery.of(context).size.height / 25,
-                ),
-                title: Container(
-                  height: 5,
-                  decoration:
-                      BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(30)),
-                ),
-                trailing: Container(height: 2, width: 10, color: Colors.white),
+              title: Container(
+                height: 5,
+                decoration:
+                    BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(30)),
               ),
-              ListTile(
-                leading: Image.asset(
-                  'assets/icons/wind.png',
-                  width: MediaQuery.of(context).size.width / 12,
-                  height: MediaQuery.of(context).size.height / 25,
-                ),
-                title: Container(
-                  height: 5,
-                  decoration:
-                      BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(30)),
-                ),
-                trailing: Container(height: 2, width: 10, color: Colors.white),
+              trailing: Container(height: 2, width: 10, color: Colors.white),
+            ),
+            ListTile(
+              leading: Image.asset(
+                'assets/icons/wind.png',
+                width: MediaQuery.of(context).size.width / 12,
+                height: MediaQuery.of(context).size.height / 25,
               ),
-              SizedBox(
-                height: MediaQuery.of(context).size.height / 90,
+              title: Container(
+                height: 5,
+                decoration:
+                    BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(30)),
               ),
-              Divider(
-                thickness: 0.2,
-                color: Colors.white,
+              trailing: Container(height: 2, width: 10, color: Colors.white),
+            ),
+            SizedBox(
+              height: MediaQuery.of(context).size.height / 90,
+            ),
+            Divider(
+              thickness: 0.2,
+              color: Colors.white,
+            ),
+            SizedBox(
+              height: MediaQuery.of(context).size.height / 40,
+            ),
+            SizedBox(
+              height: MediaQuery.of(context).size.height / 4.5,
+              child: ListView.builder(
+                scrollDirection: Axis.horizontal,
+                physics: BouncingScrollPhysics(),
+                shrinkWrap: true,
+                itemCount: 16,
+                itemBuilder: (context, index) {
+                  return Image.asset(
+                    'assets/icons/c01n.png',
+                    width: MediaQuery.of(context).size.width / 3,
+                    color: Colors.white,
+                  );
+                },
               ),
-              SizedBox(
-                height: MediaQuery.of(context).size.height / 40,
-              ),
-              SizedBox(
-                height: MediaQuery.of(context).size.height / 4.5,
-                child: ListView.builder(
-                  scrollDirection: Axis.horizontal,
-                  physics: BouncingScrollPhysics(),
-                  shrinkWrap: true,
-                  itemCount: 16,
-                  itemBuilder: (context, index) {
-                    return Image.asset(
-                      'assets/icons/c01n.png',
-                      width: MediaQuery.of(context).size.width / 3,
-                      color: Colors.white,
-                    );
-                  },
-                ),
-              ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
       baseColor: Theme.of(context).primaryColor,
@@ -245,9 +225,8 @@ class _ForecastCardState extends State<ForecastCard> {
         children: [
           Text(
             widget.date != null ? widget.date.toString() : "",
-            style: myTextStyle.copyWith(
+            style: TextStyle(
               fontStyle: FontStyle.italic,
-              fontSize: MediaQuery.of(context).size.height / 50,
             ),
           ),
           Image.asset(
@@ -257,9 +236,6 @@ class _ForecastCardState extends State<ForecastCard> {
           ),
           Text(
             " " + widget.temp.toString() + "°",
-            style: myTextStyle.copyWith(
-              fontSize: MediaQuery.of(context).size.height / 35,
-            ),
           ),
         ],
       ),
@@ -386,7 +362,6 @@ class _SearchBoxState extends State<SearchBox> {
                     ),
                     title: Text(
                       suggestion,
-                      style: myTextStyle,
                     ),
                   );
                 },
@@ -394,12 +369,12 @@ class _SearchBoxState extends State<SearchBox> {
                   if (textEditingController.text.length >= 3) {
                     return suggestionsBox;
                   } else {
-                    return Container();
+                    return SizedBox();
                   }
                 },
                 onSuggestionSelected: widget.onSuggestionSelected,
                 noItemsFoundBuilder: (context) => ListTile(
-                  title: Text("No Item Found!", style: myTextStyle),
+                  title: Text("No Item Found!"),
                   leading: Icon(
                     Iconsax.danger,
                     color: Colors.white,
@@ -420,7 +395,6 @@ class _SearchBoxState extends State<SearchBox> {
                 ),
                 textFieldConfiguration: TextFieldConfiguration(
                   textCapitalization: TextCapitalization.words,
-                  style: myTextStyle.copyWith(fontSize: 16),
                   cursorColor: Colors.white,
                   cursorWidth: 1.5,
                   controller: textEditingController,
@@ -506,9 +480,6 @@ class _ListTilesState extends State<ListTiles> {
           ),
           trailing: Text(
             widget.minTemp,
-            style: myTextStyle.copyWith(
-              fontSize: MediaQuery.of(context).size.height / 50,
-            ),
           ),
         ),
         ListTile(
@@ -526,9 +497,6 @@ class _ListTilesState extends State<ListTiles> {
           ),
           trailing: Text(
             widget.maxTemp,
-            style: myTextStyle.copyWith(
-              fontSize: MediaQuery.of(context).size.height / 50,
-            ),
           ),
         ),
         ListTile(
@@ -546,9 +514,6 @@ class _ListTilesState extends State<ListTiles> {
           ),
           trailing: Text(
             widget.wind,
-            style: myTextStyle.copyWith(
-              fontSize: MediaQuery.of(context).size.height / 50,
-            ),
           ),
         ),
         SizedBox(
@@ -622,7 +587,7 @@ class _CurrentWeatherWidgetState extends State<CurrentWeatherWidget> {
                             : widget.cityName != null
                                 ? "📍" + widget.cityName.toString()
                                 : "Loading",
-                        style: myTextStyle.copyWith(
+                        style: TextStyle(
                           fontWeight: FontWeight.w700,
                           color: widget.imagePath == 'assets/images/snow.jpg' ||
                                   widget.imagePath == 'assets/images/mist.jpg'
@@ -640,7 +605,7 @@ class _CurrentWeatherWidgetState extends State<CurrentWeatherWidget> {
                   fit: BoxFit.fitHeight,
                   child: Text(
                     widget.temperature != null ? " " + widget.temperature.toString() + "°" : "",
-                    style: myTextStyle.copyWith(
+                    style: TextStyle(
                       fontWeight: FontWeight.w700,
                       color: widget.imagePath == 'assets/images/snow.jpg' ||
                               widget.imagePath == 'assets/images/mist.jpg'
@@ -679,6 +644,120 @@ class _CurrentWeatherWidgetState extends State<CurrentWeatherWidget> {
           color: Theme.of(context).primaryColor, borderRadius: BorderRadius.circular(20)),
       height: MediaQuery.of(context).size.height / 3,
       width: MediaQuery.of(context).size.width,
+    );
+  }
+}
+
+class BottomNavigation extends StatelessWidget {
+  const BottomNavigation({
+    Key? key,
+    required this.items,
+    required this.backgroundColor,
+  }) : super(key: key);
+
+  final List<BottomNavigationItem> items;
+  final Color backgroundColor;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      margin: EdgeInsets.symmetric(
+        horizontal: MediaQuery.of(context).size.width / 6,
+        vertical: 10,
+      ),
+      decoration: BoxDecoration(
+        color: backgroundColor.withOpacity(0.7),
+        borderRadius: BorderRadius.circular(20),
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: items,
+      ),
+    );
+  }
+}
+
+class BottomNavigationItem extends StatefulWidget {
+  const BottomNavigationItem({
+    Key? key,
+    required this.controller,
+    required this.currentIndex,
+    required this.icon,
+    required this.onPressed,
+    this.title,
+    this.selectedIcon,
+    this.shape,
+  }) : super(key: key);
+
+  final PageController controller;
+  final int currentIndex;
+  final Icon icon;
+  final void Function() onPressed;
+  final String? title;
+  final Icon? selectedIcon;
+  final ShapeBorder? shape;
+
+  @override
+  State<BottomNavigationItem> createState() => _BottomNavigationItemState();
+}
+
+class _BottomNavigationItemState extends State<BottomNavigationItem> {
+  @override
+  void initState() {
+    super.initState();
+    Future.delayed(Duration.zero, () {
+      setState(() {});
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    Widget iconWidget() {
+      if (widget.controller.page == null) {
+        return widget.icon;
+      } else {
+        if (widget.controller.page!.round() != widget.currentIndex) {
+          return widget.icon;
+        } else {
+          return widget.selectedIcon ?? widget.icon;
+        }
+      }
+    }
+
+    Widget indicator() {
+      if (widget.controller.page == null) {
+        return Container();
+      } else {
+        if (widget.controller.page!.round() == widget.currentIndex) {
+          return BounceInUp(
+            from: 10,
+            child: Container(
+              decoration: BoxDecoration(
+                color: Color(0xFFEF233C),
+                borderRadius: BorderRadius.circular(10),
+              ),
+              width: 4,
+              height: 4,
+            ),
+          );
+        } else {
+          return Container();
+        }
+      }
+    }
+
+    return Expanded(
+      child: MaterialButton(
+        onPressed: widget.onPressed,
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            iconWidget(),
+            indicator(),
+          ],
+        ),
+        shape: widget.shape ?? RoundedRectangleBorder(),
+      ),
     );
   }
 }

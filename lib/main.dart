@@ -43,7 +43,15 @@ void main() async {
         debugShowCheckedModeBanner: false,
         title: "Weather App",
         home: HomePage(),
-        theme: ThemeData.dark(),
+        theme: ThemeData.dark().copyWith(
+          scaffoldBackgroundColor: Color(0xFF2B2D42),
+          primaryColor: Color(0xFF1E1F32),
+          cardColor: Color(0xFF3E4C64),
+          colorScheme: ThemeData.dark().colorScheme.copyWith(
+            primary: Color(0xFFBE2E47),
+            secondary: Color(0xFFB13A4F),
+          ),
+        ),
       ),
     ),
   );
