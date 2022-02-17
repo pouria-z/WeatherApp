@@ -48,7 +48,8 @@ class Weather with ChangeNotifier {
 
   Future<LocCurrentWeatherModel> locCurrentWeather() async {
     url = Uri.parse("${apiUrl}current?lat=$lat&lon=$lon&key=$apiKey");
-    Response response = await get(url);
+    var local = Uri.parse("http://192.168.1.8:1010/current");
+    Response response = await get(local);
     var json = jsonDecode(response.body);
     locCurrentModel = LocCurrentWeatherModel.fromJson(json);
     refreshController.refreshCompleted();
@@ -63,7 +64,8 @@ class Weather with ChangeNotifier {
   Future<LocForecastWeatherModel> locForecastWeather() async {
     final DateFormat formatter = DateFormat('EEE, MMM d');
     url = Uri.parse("${apiUrl}forecast/daily?lat=$lat&lon=$lon&key=$apiKey");
-    Response response = await get(url);
+    var local = Uri.parse("http://192.168.1.8:1010/forecast");
+    Response response = await get(local);
     var json = jsonDecode(response.body);
     locForecastModel = LocForecastWeatherModel.fromJson(json);
     for (var i = 0; i < locForecastModel!.data.length; i++) {

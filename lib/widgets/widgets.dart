@@ -243,60 +243,20 @@ class _ForecastCardState extends State<ForecastCard> {
   }
 }
 
-class ForecastCardList extends StatefulWidget {
-  const ForecastCardList({
-    Key? key,
-    required this.fCityList,
-    required this.fDateList,
-    required this.fTempList,
-    required this.fIconList,
-  }) : super(key: key);
-
-  final List fCityList;
-  final List fDateList;
-  final List fTempList;
-  final List fIconList;
-
-  @override
-  _ForecastCardListState createState() => _ForecastCardListState();
-}
-
-class _ForecastCardListState extends State<ForecastCardList> {
-  @override
-  Widget build(BuildContext context) {
-    return SizedBox(
-      height: MediaQuery.of(context).size.height / 4.5,
-      child: ListView.builder(
-        scrollDirection: Axis.horizontal,
-        physics: BouncingScrollPhysics(),
-        shrinkWrap: true,
-        itemCount: widget.fCityList.length,
-        itemBuilder: (context, index) {
-          return ForecastCard(
-            date: widget.fDateList[index],
-            temp: widget.fTempList[index],
-            icon: widget.fIconList[index],
-          );
-        },
-      ),
-    );
-  }
-}
-
 class SearchBox extends StatefulWidget {
-  final locIcon;
+  final Widget locIcon;
   final onSuggestionSelected;
   final onSubmitted;
-  final sizedBoxWidth;
-  final offset;
+  final double? sizedBoxWidth;
+  final double offset;
   final favoriteWidget;
 
   const SearchBox({
     Key? key,
-    this.locIcon,
+    required this.locIcon,
     this.onSubmitted,
     this.sizedBoxWidth,
-    this.offset,
+    required this.offset,
     this.onSuggestionSelected,
     this.favoriteWidget,
   }) : super(key: key);
@@ -439,6 +399,7 @@ class _SearchBoxState extends State<SearchBox> {
                     splashRadius: 20,
                   )
                 : Container(),
+            widget.favoriteWidget,
           ],
         ),
       ),

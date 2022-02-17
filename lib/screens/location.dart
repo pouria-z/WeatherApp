@@ -14,6 +14,7 @@ import 'package:weather_app/services/notification.dart';
 import 'package:weather_app/services/services.dart';
 import 'package:weather_app/widgets/widgets.dart';
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 RefreshController refreshController = RefreshController(initialRefresh: false);
 
@@ -24,6 +25,25 @@ class LocationPage extends StatefulWidget {
 
 class _LocationPage extends State<LocationPage> with AutomaticKeepAliveClientMixin {
   FirebaseAnalytics analytics = FirebaseAnalytics.instance;
+  Set<String>? favorites;
+  bool isFavorite = false;
+
+  Future getFavorites() async {
+    SharedPreferences preferences = await SharedPreferences.getInstance();
+    var weather = Provider.of<Weather>(context, listen: false);
+    // await preferences.clear();
+    favorites = preferences.getKeys();
+    print("values: $favorites");
+    if (favorites!.contains(weather.locCurrentModel!.data[0].cityName)) {
+      setState(() {
+        isFavorite = true;
+      });
+    } else {
+      setState(() {
+        isFavorite = false;
+      });
+    }
+  }
 
   String imageAsset() {
     var weather = Provider.of<Weather>(context, listen: false);
@@ -43,9 +63,11 @@ class _LocationPage extends State<LocationPage> with AutomaticKeepAliveClientMix
     });
     WidgetsBinding.instance!.addPostFrameCallback((timeStamp) async {
       await analytics.setCurrentScreen(screenName: "location_screen");
-      await weather.getLocation();
-      weather.locCurrentWeatherModel = weather.locCurrentWeather();
+      // await weather.getLocation();
+      weather.locCurrentWeatherModel =
+          weather.locCurrentWeather().whenComplete(() => getFavorites());
       weather.locForecastWeatherModel = weather.locForecastWeather();
+      print(isFavorite);
     });
   }
 
@@ -174,6 +196,28 @@ class _LocationPage extends State<LocationPage> with AutomaticKeepAliveClientMix
                             weather.forecastWeatherModel = weather.forecastWeather();
                           }
                         },
+                        favoriteWidget: IconButton(
+                          onPressed: () async {
+                            SharedPreferences preferences = await SharedPreferences.getInstance();
+                            var city = weather.locCurrentModel!.data[0].cityName;
+                            if (!isFavorite) {
+                              print("not in faves");
+                              await preferences.setString("$city", "$city");
+                              print("$city saved successfully!");
+                              await getFavorites();
+                            } else {
+                              print("already in faves");
+                              preferences.remove("$city");
+                              print("$city removed successfully!");
+                              await getFavorites();
+                            }
+                          },
+                          icon: Icon(
+                            isFavorite ? Iconsax.heart5 : Iconsax.heart,
+                            color:
+                                isFavorite ? Theme.of(context).colorScheme.primary : Colors.white,
+                          ),
+                        ),
                       ),
                       weather.url.toString().contains('city')
                           ? FutureBuilder<CurrentWeatherModel>(

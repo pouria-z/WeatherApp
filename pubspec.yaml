@@ -27,6 +27,7 @@ dependencies:
   parse_server_sdk_flutter: ^3.1.0
   iconsax: ^0.0.8
   animate_do: ^2.1.0
+  shared_preferences: ^2.0.13
 
 dev_dependencies:
   flutter_test:
