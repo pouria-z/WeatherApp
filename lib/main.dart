@@ -33,8 +33,8 @@ void main() async {
     autoSendSessionId: true,
     liveQueryUrl: serverUrl,
   );
-  // await getApiKey();
-  // await updateApiKey();
+  await getApiKey();
+  await updateApiKey();
   FirebaseAnalytics.instance.logAppOpen();
   runApp(
     ChangeNotifierProvider(

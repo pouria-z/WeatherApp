@@ -6,7 +6,9 @@ import 'dart:convert';
 import 'package:http/http.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:intl/intl.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:weather_app/models/current_weather.dart';
+import 'package:weather_app/models/favorites_weather.dart';
 import 'package:weather_app/models/forecast_weather.dart';
 import 'package:weather_app/models/loc_current_weather.dart';
 import 'package:weather_app/models/loc_forecast_weather.dart';
@@ -94,6 +96,7 @@ class Weather with ChangeNotifier {
     Response response = await get(url);
     var json = jsonDecode(response.body);
     currentModel = CurrentWeatherModel.fromJson(json);
+    await getFavorites();
     refreshController.refreshCompleted();
     notifyListeners();
     return currentModel!;
@@ -126,5 +129,56 @@ class Weather with ChangeNotifier {
     refreshController.refreshCompleted();
     notifyListeners();
     return forecastModel!;
+  }
+
+  Set<String>? favorites;
+  bool isFavorite = false;
+
+  Future favoritesList() async {
+    SharedPreferences preferences = await SharedPreferences.getInstance();
+    // await preferences.clear();
+    favorites = preferences.getKeys();
+    notifyListeners();
+  }
+
+  Future getFavorites() async {
+    SharedPreferences preferences = await SharedPreferences.getInstance();
+    // await preferences.clear();
+    favorites = preferences.getKeys();
+    notifyListeners();
+    print("values: $favorites");
+    if (url.toString().contains("city")) {
+      if (favorites!.contains(currentModel!.data![0].cityName)) {
+        isFavorite = true;
+        notifyListeners();
+      } else {
+        isFavorite = false;
+        notifyListeners();
+      }
+    }
+  }
+
+  Future<FavoritesWeatherModel>? favoritesWeatherModel;
+  FavoritesWeatherModel? favoritesModel;
+  List<FavoritesWeatherModel> favoritesModelList = [];
+
+  Future<FavoritesWeatherModel> getAllFavoritesWeather(String city) async {
+    Uri canadaCurrentUrl =
+    Uri.parse("${apiUrl}current?city=$city&country=CA&key=$apiKey");
+    Uri currentUrl = Uri.parse("${apiUrl}current?city=$city&key=$apiKey");
+    var url = city == "Montreal" ||
+        city == "Montréal" ||
+        city == "Vancouver" ||
+        city == "Toronto"
+        ? canadaCurrentUrl
+        : currentUrl;
+    var local = Uri.parse("http://192.168.1.8:1010/current");
+    Response response = await get(url);
+    var json = jsonDecode(response.body);
+    print(json);
+    favoritesModel = FavoritesWeatherModel.fromJson(json);
+    favoritesModelList.add(favoritesModel!);
+    notifyListeners();
+    return favoritesModel!;
   }
 }

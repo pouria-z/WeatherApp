@@ -1,15 +1,15 @@
 import 'package:weather_app/services/services.dart';
 
-class CurrentWeatherModel {
-  CurrentWeatherModel({
+class FavoritesWeatherModel {
+  FavoritesWeatherModel({
     this.data,
   });
 
   List<Data>? data;
 
-  factory CurrentWeatherModel.fromJson(Map<String, dynamic> json) => CurrentWeatherModel(
-        data: List<Data>.from(json["data"].map((x) => Data.fromJson(x))),
-      );
+  factory FavoritesWeatherModel.fromJson(Map<String, dynamic> json) => FavoritesWeatherModel(
+    data: List<Data>.from(json["data"].map((x) => Data.fromJson(x))),
+  );
 }
 
 class Data {
@@ -26,11 +26,11 @@ class Data {
   var temp;
 
   factory Data.fromJson(Map<String, dynamic> json) => Data(
-        cityName: json["city_name"],
-        windSpd: json["wind_spd"].round(),
-        weatherModel: WeatherModel.fromJson(json["weather"]),
-        temp: json["temp"].round(),
-      );
+    cityName: json["city_name"],
+    windSpd: json["wind_spd"].round(),
+    weatherModel: WeatherModel.fromJson(json["weather"]),
+    temp: json["temp"].round(),
+  );
 }
 
 class WeatherModel {
@@ -96,8 +96,8 @@ class WeatherModel {
   }
 
   factory WeatherModel.fromJson(Map<String, dynamic> json) => WeatherModel(
-        icon: json["icon"],
-        code: json["code"],
-        description: json["description"],
-      );
+    icon: json["icon"],
+    code: json["code"],
+    description: json["description"],
+  );
 }
