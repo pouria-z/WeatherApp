@@ -497,6 +497,7 @@ class CurrentWeatherWidget extends StatefulWidget {
     Key? key,
     required this.imagePath,
     required this.cityName,
+    required this.isFavorite,
     required this.url,
     required this.temperature,
     required this.iconPath,
@@ -505,6 +506,7 @@ class CurrentWeatherWidget extends StatefulWidget {
 
   final String? imagePath;
   final String? cityName;
+  final bool isFavorite;
   final url;
   final temperature;
   final String? iconPath;
@@ -543,7 +545,7 @@ class _CurrentWeatherWidgetState extends State<CurrentWeatherWidget> {
                     child: FittedBox(
                       fit: BoxFit.contain,
                       child: Text(
-                        widget.cityName != null && widget.url.toString().contains('city')
+                        (widget.cityName != null && widget.url.toString().contains('city')) || widget.isFavorite
                             ? widget.cityName.toString()
                             : widget.cityName != null
                                 ? "📍" + widget.cityName.toString()

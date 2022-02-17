@@ -7,11 +7,13 @@ import 'package:http/http.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:weather_app/models/current_weather.dart';
-import 'package:weather_app/models/favorites_weather.dart';
-import 'package:weather_app/models/forecast_weather.dart';
-import 'package:weather_app/models/loc_current_weather.dart';
-import 'package:weather_app/models/loc_forecast_weather.dart';
+import 'package:weather_app/models/favorite_models/favorite_details_current.dart';
+import 'package:weather_app/models/favorite_models/favorite_details_forecast.dart';
+import 'package:weather_app/models/searched_models/current_weather.dart';
+import 'package:weather_app/models/favorite_models/favorites_weather.dart';
+import 'package:weather_app/models/searched_models/forecast_weather.dart';
+import 'package:weather_app/models/location_models/loc_current_weather.dart';
+import 'package:weather_app/models/location_models/loc_forecast_weather.dart';
 import 'package:weather_app/screens/location.dart';
 import 'package:weather_app/widgets/widgets.dart';
 import 'package:weather_app/screens/home.dart';
@@ -96,7 +98,7 @@ class Weather with ChangeNotifier {
     Response response = await get(url);
     var json = jsonDecode(response.body);
     currentModel = CurrentWeatherModel.fromJson(json);
-    await getFavorites();
+    await setFavorite();
     refreshController.refreshCompleted();
     notifyListeners();
     return currentModel!;
@@ -134,19 +136,14 @@ class Weather with ChangeNotifier {
   Set<String>? favorites;
   bool isFavorite = false;
 
-  Future favoritesList() async {
+  Future getFavoritesList() async {
     SharedPreferences preferences = await SharedPreferences.getInstance();
     // await preferences.clear();
     favorites = preferences.getKeys();
     notifyListeners();
   }
 
-  Future getFavorites() async {
-    SharedPreferences preferences = await SharedPreferences.getInstance();
-    // await preferences.clear();
-    favorites = preferences.getKeys();
-    notifyListeners();
-    print("values: $favorites");
+  Future setFavorite() async {
     if (url.toString().contains("city")) {
       if (favorites!.contains(currentModel!.data![0].cityName)) {
         isFavorite = true;
@@ -158,18 +155,24 @@ class Weather with ChangeNotifier {
     }
   }
 
+  Future setFavoriteInDetails() async {
+    if (favorites!.contains(favoriteDetailsCurrentModel!.data![0].cityName)) {
+      isFavorite = true;
+      notifyListeners();
+    } else {
+      isFavorite = false;
+      notifyListeners();
+    }
+  }
+
   Future<FavoritesWeatherModel>? favoritesWeatherModel;
   FavoritesWeatherModel? favoritesModel;
   List<FavoritesWeatherModel> favoritesModelList = [];
 
   Future<FavoritesWeatherModel> getAllFavoritesWeather(String city) async {
-    Uri canadaCurrentUrl =
-    Uri.parse("${apiUrl}current?city=$city&country=CA&key=$apiKey");
+    Uri canadaCurrentUrl = Uri.parse("${apiUrl}current?city=$city&country=CA&key=$apiKey");
     Uri currentUrl = Uri.parse("${apiUrl}current?city=$city&key=$apiKey");
-    var url = city == "Montreal" ||
-        city == "Montréal" ||
-        city == "Vancouver" ||
-        city == "Toronto"
+    var url = city == "Montreal" || city == "Montréal" || city == "Vancouver" || city == "Toronto"
         ? canadaCurrentUrl
         : currentUrl;
     var local = Uri.parse("http://192.168.1.8:1010/current");
@@ -180,5 +183,44 @@ class Weather with ChangeNotifier {
     favoritesModelList.add(favoritesModel!);
     notifyListeners();
     return favoritesModel!;
+  }
+
+  Future<FavoriteDetailsCurrentModel>? favoriteDetailsCurrentWeatherModel;
+  FavoriteDetailsCurrentModel? favoriteDetailsCurrentModel;
+
+  Future<FavoriteDetailsCurrentModel> favoriteDetailsCurrent(String city) async {
+    Uri canadaCurrentUrl = Uri.parse("${apiUrl}current?city=$city&country=CA&key=$apiKey");
+    Uri currentUrl = Uri.parse("${apiUrl}current?city=$city&key=$apiKey");
+    var url = city == "Montreal" || city == "Montréal" || city == "Vancouver" || city == "Toronto"
+        ? canadaCurrentUrl
+        : currentUrl;
+    Response response = await get(url);
+    var json = jsonDecode(response.body);
+    favoriteDetailsCurrentModel = FavoriteDetailsCurrentModel.fromJson(json);
+    notifyListeners();
+    return favoriteDetailsCurrentModel!;
+  }
+
+  Future<FavoriteDetailsForecastModel>? favoriteDetailsForecastWeatherModel;
+  FavoriteDetailsForecastModel? favoriteDetailsForecastModel;
+  List favoriteForecastDate = [];
+
+  Future<FavoriteDetailsForecastModel> favoriteDetailsForecast(String city) async {
+    final DateFormat formatter = DateFormat('EEE, MMM d');
+    Uri canadaForecastUrl = Uri.parse("${apiUrl}forecast/daily?city=$city&country=CA&key=$apiKey");
+    Uri forecastUrl = Uri.parse("${apiUrl}forecast/daily?city=$city&key=$apiKey");
+    var url = city == "Montreal" || city == "Montréal" || city == "Vancouver" || city == "Toronto"
+        ? canadaForecastUrl
+        : forecastUrl;
+    Response response = await get(url);
+    var json = jsonDecode(response.body);
+    favoriteDetailsForecastModel = FavoriteDetailsForecastModel.fromJson(json);
+    for (var i = 0; i < favoriteDetailsForecastModel!.data!.length; i++) {
+      favoriteForecastDate.add(formatter.format(favoriteDetailsForecastModel!.data![i].dateTime!));
+    }
+    favoriteForecastDate[0] = 'Today';
+    favoriteForecastDate[1] = 'Tomorrow';
+    notifyListeners();
+    return favoriteDetailsForecastModel!;
   }
 }

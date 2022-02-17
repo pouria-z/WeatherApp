@@ -6,10 +6,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:iconsax/iconsax.dart';
 import 'package:pull_to_refresh/pull_to_refresh.dart';
-import 'package:weather_app/models/current_weather.dart';
-import 'package:weather_app/models/forecast_weather.dart';
-import 'package:weather_app/models/loc_current_weather.dart';
-import 'package:weather_app/models/loc_forecast_weather.dart';
+import 'package:weather_app/models/searched_models/current_weather.dart';
+import 'package:weather_app/models/searched_models/forecast_weather.dart';
+import 'package:weather_app/models/location_models/loc_current_weather.dart';
+import 'package:weather_app/models/location_models/loc_forecast_weather.dart';
 import 'package:weather_app/services/notification.dart';
 import 'package:weather_app/services/services.dart';
 import 'package:weather_app/widgets/widgets.dart';
@@ -45,10 +45,10 @@ class _LocationPage extends State<LocationPage> with AutomaticKeepAliveClientMix
     WidgetsBinding.instance!.addPostFrameCallback((timeStamp) async {
       await analytics.setCurrentScreen(screenName: "location_screen");
       // await weather.getLocation();
-      await weather.favoritesList();
+      await weather.getFavoritesList();
       weather.locCurrentWeatherModel = weather.locCurrentWeather().whenComplete(() async {
         print("calling api");
-        await weather.getFavorites();
+        await weather.setFavorite();
       });
       weather.locForecastWeatherModel = weather.locForecastWeather();
       print(weather.isFavorite);
@@ -180,6 +180,8 @@ class _LocationPage extends State<LocationPage> with AutomaticKeepAliveClientMix
                             weather.forecastWeatherModel = weather.forecastWeather();
                           }
                         },
+
+                        ///addToFavorite
                         favoriteWidget: weather.url.toString().contains("city")
                             ? IconButton(
                                 onPressed: () async {
@@ -190,12 +192,14 @@ class _LocationPage extends State<LocationPage> with AutomaticKeepAliveClientMix
                                     print("not in faves");
                                     await preferences.setString("$city", "$city");
                                     print("$city saved successfully!");
-                                    await weather.getFavorites();
+                                    await weather.getFavoritesList();
+                                    await weather.setFavorite();
                                   } else {
                                     print("already in faves");
                                     preferences.remove("$city");
                                     print("$city removed successfully!");
-                                    await weather.getFavorites();
+                                    await weather.getFavoritesList();
+                                    await weather.setFavorite();
                                   }
                                 },
                                 icon: Icon(
@@ -243,6 +247,7 @@ class _LocationPage extends State<LocationPage> with AutomaticKeepAliveClientMix
                                       children: [
                                         CurrentWeatherWidget(
                                           imagePath: imageAsset(),
+                                          isFavorite: false,
                                           cityName: currentData.cityName,
                                           url: weather.url,
                                           temperature: currentData.temp,
@@ -341,6 +346,7 @@ class _LocationPage extends State<LocationPage> with AutomaticKeepAliveClientMix
                                       children: [
                                         CurrentWeatherWidget(
                                           imagePath: imageAsset(),
+                                          isFavorite: false,
                                           cityName: currentData.cityName,
                                           url: weather.url,
                                           temperature: currentData.temp,

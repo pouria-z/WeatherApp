@@ -4,6 +4,7 @@ import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:parse_server_sdk_flutter/parse_server_sdk.dart';
 import 'package:provider/provider.dart';
 import 'package:weather_app/screens/home.dart';
@@ -36,6 +37,13 @@ void main() async {
   await getApiKey();
   await updateApiKey();
   FirebaseAnalytics.instance.logAppOpen();
+  await SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
+  SystemChrome.setSystemUIOverlayStyle(
+    SystemUiOverlayStyle(
+      systemNavigationBarColor: Color(0xFF2B2D42),
+      statusBarColor: Color(0xFF2B2D42),
+    ),
+  );
   runApp(
     ChangeNotifierProvider(
       create: (context) => Weather(),
@@ -50,6 +58,16 @@ void main() async {
           colorScheme: ThemeData.dark().colorScheme.copyWith(
             primary: Color(0xFFBE2E47),
             secondary: Color(0xFFB13A4F),
+          ),
+          snackBarTheme: SnackBarThemeData().copyWith(
+            behavior: SnackBarBehavior.floating,
+            backgroundColor: Color(0xFF3E4C64),
+            contentTextStyle: TextStyle(
+              color: Colors.white70,
+            ),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(15),
+            ),
           ),
         ),
       ),

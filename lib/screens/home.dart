@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:iconsax/iconsax.dart';
-import 'package:weather_app/screens/favorites.dart';
+import 'package:weather_app/screens/favorite/favorites.dart';
 import 'package:weather_app/screens/location.dart';
 import 'package:weather_app/widgets/widgets.dart';
 
