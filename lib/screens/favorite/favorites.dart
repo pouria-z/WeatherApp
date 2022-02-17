@@ -1,6 +1,7 @@
 import 'dart:ui';
 
 import 'package:animate_do/animate_do.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -40,7 +41,13 @@ class _FavoritesPageState extends State<FavoritesPage> with AutomaticKeepAliveCl
         return Scaffold(
           appBar: AppBar(
             backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-            title: Text("Favorites"),
+            centerTitle: true,
+            title: Text(
+              "Favorites",
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+              ),
+            ),
             actions: [
               IconButton(
                 onPressed: () async {
@@ -76,98 +83,107 @@ class _FavoritesPageState extends State<FavoritesPage> with AutomaticKeepAliveCl
             child: Center(
               child: Column(
                 children: [
-                  ListView.builder(
-                    itemCount: weather.favoritesModelList.length,
-                    shrinkWrap: true,
-                    physics: BouncingScrollPhysics(),
-                    itemBuilder: (context, index) {
-                      var favorite = weather.favoritesModelList[index].data![0];
-                      return SlideInRight(
-                        from: MediaQuery.of(context).size.width,
-                        child: InkWell(
-                          onTap: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) {
-                                  return FavoriteDetailsPage(city: favorite.cityName!);
+                  weather.favoritesModelList.isNotEmpty
+                      ? ListView.builder(
+                          itemCount: weather.favoritesModelList.length,
+                          shrinkWrap: true,
+                          physics: BouncingScrollPhysics(),
+                          itemBuilder: (context, index) {
+                            var favorite = weather.favoritesModelList[index].data![0];
+                            return SlideInRight(
+                              from: MediaQuery.of(context).size.width,
+                              child: InkWell(
+                                onTap: () {
+                                  Navigator.push(
+                                    context,
+                                    CupertinoPageRoute(
+                                      builder: (context) {
+                                        return FavoriteDetailsPage(city: favorite.cityName!);
+                                      },
+                                    ),
+                                  );
                                 },
-                              ),
-                            );
-                          },
-                          splashColor: Theme.of(context).cardColor,
-                          borderRadius: BorderRadius.circular(15),
-                          child: Container(
-                            height: 80,
-                            margin: EdgeInsets.symmetric(horizontal: 5, vertical: 5),
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(15),
-                            ),
-                            child: Stack(
-                              fit: StackFit.expand,
-                              children: [
-                                ClipRRect(
-                                  borderRadius: BorderRadius.circular(15),
-                                  child: Image.asset(
-                                    favorite.weatherModel!.imageAsset(),
-                                    fit: BoxFit.fitWidth,
+                                splashColor: Theme.of(context).cardColor,
+                                borderRadius: BorderRadius.circular(15),
+                                child: Container(
+                                  height: 80,
+                                  margin: EdgeInsets.symmetric(horizontal: 5, vertical: 5),
+                                  decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(15),
                                   ),
-                                ),
-                                ClipRRect(
-                                  borderRadius: BorderRadius.circular(15),
-                                  child: BackdropFilter(
-                                    filter: ImageFilter.blur(sigmaX: 3, sigmaY: 3),
-                                    child: Center(
-                                      child: ListTile(
-                                        leading: Image.asset(
-                                            'assets/icons/${favorite.weatherModel!.icon}.png'),
-                                        title: Text(
-                                          "${favorite.cityName}",
-                                          style: TextStyle(
-                                            fontWeight: FontWeight.w700,
-                                            color: favorite.weatherModel!.imageAsset() ==
-                                                        'assets/images/snow.jpg' ||
-                                                    favorite.weatherModel!.imageAsset() ==
-                                                        'assets/images/mist.jpg'
-                                                ? Colors.black
-                                                : Colors.white,
-                                          ),
+                                  child: Stack(
+                                    fit: StackFit.expand,
+                                    children: [
+                                      ClipRRect(
+                                        borderRadius: BorderRadius.circular(15),
+                                        child: Image.asset(
+                                          favorite.weatherModel!.imageAsset(),
+                                          fit: BoxFit.fitWidth,
                                         ),
-                                        subtitle: Text(
-                                          "${favorite.weatherModel!.description}",
-                                          style: TextStyle(
-                                            fontSize: 12,
-                                            color: favorite.weatherModel!.imageAsset() ==
-                                                'assets/images/snow.jpg' ||
-                                                favorite.weatherModel!.imageAsset() ==
-                                                    'assets/images/mist.jpg'
-                                                ? Colors.black87
-                                                : Colors.white70,
-                                          ),
-                                        ),
-                                        trailing: Text(
-                                          "${favorite.temp}°",
-                                          style: TextStyle(
-                                            fontWeight: FontWeight.w700,
-                                            color: favorite.weatherModel!.imageAsset() ==
-                                                        'assets/images/snow.jpg' ||
-                                                    favorite.weatherModel!.imageAsset() ==
-                                                        'assets/images/mist.jpg'
-                                                ? Colors.black
-                                                : Colors.white,
+                                      ),
+                                      ClipRRect(
+                                        borderRadius: BorderRadius.circular(15),
+                                        child: BackdropFilter(
+                                          filter: ImageFilter.blur(sigmaX: 3, sigmaY: 3),
+                                          child: Center(
+                                            child: ListTile(
+                                              leading: Image.asset(
+                                                  'assets/icons/${favorite.weatherModel!.icon}.png'),
+                                              title: Text(
+                                                "${favorite.cityName}",
+                                                style: TextStyle(
+                                                  fontWeight: FontWeight.w700,
+                                                  color: favorite.weatherModel!.imageAsset() ==
+                                                              'assets/images/snow.jpg' ||
+                                                          favorite.weatherModel!.imageAsset() ==
+                                                              'assets/images/mist.jpg'
+                                                      ? Colors.black
+                                                      : Colors.white,
+                                                ),
+                                              ),
+                                              subtitle: Text(
+                                                "${favorite.weatherModel!.description}",
+                                                style: TextStyle(
+                                                  fontSize: 12,
+                                                  color: favorite.weatherModel!.imageAsset() ==
+                                                              'assets/images/snow.jpg' ||
+                                                          favorite.weatherModel!.imageAsset() ==
+                                                              'assets/images/mist.jpg'
+                                                      ? Colors.black87
+                                                      : Colors.white70,
+                                                ),
+                                              ),
+                                              trailing: Text(
+                                                "${favorite.temp}°",
+                                                style: TextStyle(
+                                                  fontWeight: FontWeight.w700,
+                                                  color: favorite.weatherModel!.imageAsset() ==
+                                                              'assets/images/snow.jpg' ||
+                                                          favorite.weatherModel!.imageAsset() ==
+                                                              'assets/images/mist.jpg'
+                                                      ? Colors.black
+                                                      : Colors.white,
+                                                ),
+                                              ),
+                                            ),
                                           ),
                                         ),
                                       ),
-                                    ),
+                                    ],
                                   ),
                                 ),
-                              ],
+                              ),
+                            );
+                          },
+                        )
+                      : Center(
+                          child: Text(
+                            "Your list is empty :(",
+                            style: TextStyle(
+                              color: Colors.white54,
                             ),
                           ),
                         ),
-                      );
-                    },
-                  ),
                 ],
               ),
             ),

@@ -198,11 +198,14 @@ class BottomLoading extends StatelessWidget {
 }
 
 class ForecastCard extends StatefulWidget {
+  const ForecastCard({Key? key, this.date, this.temp, this.icon, this.minTemp, this.maxTemp})
+      : super(key: key);
+
   final date;
   final temp;
   final icon;
-
-  const ForecastCard({Key? key, this.date, this.temp, this.icon}) : super(key: key);
+  final minTemp;
+  final maxTemp;
 
   @override
   _ForecastCardState createState() => _ForecastCardState();
@@ -213,13 +216,16 @@ class _ForecastCardState extends State<ForecastCard> {
   Widget build(BuildContext context) {
     return Container(
       width: MediaQuery.of(context).size.width / 3,
-      decoration: BoxDecoration(color: Theme.of(context).scaffoldBackgroundColor, boxShadow: [
-        BoxShadow(
-          color: Colors.black26,
-          spreadRadius: 1,
-          blurRadius: 30,
-        ),
-      ]),
+      decoration: BoxDecoration(
+        color: Theme.of(context).scaffoldBackgroundColor,
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black26,
+            spreadRadius: 1,
+            blurRadius: 30,
+          ),
+        ],
+      ),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
@@ -236,6 +242,29 @@ class _ForecastCardState extends State<ForecastCard> {
           ),
           Text(
             " " + widget.temp.toString() + "°",
+            style: TextStyle(
+              color: Colors.white,
+              fontSize: 18,
+            ),
+          ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text(
+                "\n ${widget.minTemp.toString()}°",
+                style: TextStyle(
+                  color: Colors.white60,
+                  fontSize: 12,
+                ),
+              ),
+              Text(
+                "\n  /  ${widget.maxTemp.toString()}°",
+                style: TextStyle(
+                  color: Colors.white60,
+                  fontSize: 12,
+                ),
+              ),
+            ],
           ),
         ],
       ),
@@ -270,137 +299,140 @@ class _SearchBoxState extends State<SearchBox> {
   Widget build(BuildContext context) {
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: 15, vertical: 15),
-      child: Container(
-        width: MediaQuery.of(context).size.width,
-        height: 54,
-        decoration: BoxDecoration(
-            color: Theme.of(context).scaffoldBackgroundColor,
-            borderRadius: BorderRadius.circular(7),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black38,
-                spreadRadius: 1,
-                blurRadius: 10,
-                offset: Offset(0, 5),
-              ),
-            ]),
-        child: Row(
-          children: [
-            SizedBox(width: 10),
-            IconButton(
-              icon: Icon(
-                Iconsax.info_circle,
-                color: Colors.white,
-              ),
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  CupertinoPageRoute(
-                    builder: (context) => Info(),
-                  ),
-                );
-              },
-              splashRadius: 20,
-            ),
-            widget.locIcon,
-            SizedBox(
-              width: widget.sizedBoxWidth,
-            ),
-            Expanded(
-              child: TypeAheadField(
-                suggestionsCallback: (String pattern) async {
-                  return CitiesService.cities
-                      .where((item) => item.toLowerCase().startsWith(pattern.toLowerCase()))
-                      .toList();
-                },
-                itemBuilder: (context, dynamic suggestion) {
-                  return ListTile(
-                    leading: Icon(
-                      Iconsax.search_normal_1,
-                      color: Colors.white,
-                      size: MediaQuery.of(context).size.height / 35,
-                    ),
-                    title: Text(
-                      suggestion,
+      child: SlideInDown(
+        from: MediaQuery.of(context).size.height,
+        child: Container(
+          width: MediaQuery.of(context).size.width,
+          height: 54,
+          decoration: BoxDecoration(
+              color: Theme.of(context).scaffoldBackgroundColor,
+              borderRadius: BorderRadius.circular(17),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black38,
+                  spreadRadius: 1,
+                  blurRadius: 10,
+                  offset: Offset(0, 5),
+                ),
+              ]),
+          child: Row(
+            children: [
+              SizedBox(width: 10),
+              IconButton(
+                icon: Icon(
+                  Iconsax.info_circle,
+                  color: Colors.white,
+                ),
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    CupertinoPageRoute(
+                      builder: (context) => Info(),
                     ),
                   );
                 },
-                transitionBuilder: (context, suggestionsBox, controller) {
-                  if (textEditingController.text.length >= 3) {
-                    return suggestionsBox;
-                  } else {
-                    return SizedBox();
-                  }
-                },
-                onSuggestionSelected: widget.onSuggestionSelected,
-                noItemsFoundBuilder: (context) => ListTile(
-                  title: Text("No Item Found!"),
-                  leading: Icon(
-                    Iconsax.danger,
-                    color: Colors.white,
-                  ),
-                ),
-                hideSuggestionsOnKeyboardHide: true,
-                suggestionsBoxDecoration: SuggestionsBoxDecoration(
-                  borderRadius: BorderRadius.only(
-                    bottomRight: Radius.circular(15),
-                    bottomLeft: Radius.circular(15),
-                  ),
-                  color: Theme.of(context).primaryColor,
-                  elevation: 0,
-                  offsetX: widget.offset,
-                  constraints: BoxConstraints.tightFor(
-                    width: MediaQuery.of(context).size.width - 30,
-                  ),
-                ),
-                textFieldConfiguration: TextFieldConfiguration(
-                  textCapitalization: TextCapitalization.words,
-                  cursorColor: Colors.white,
-                  cursorWidth: 1.5,
-                  controller: textEditingController,
-                  textInputAction: TextInputAction.search,
-                  decoration: InputDecoration(
-                    icon: Icon(
-                      Iconsax.search_normal,
-                      color: Colors.white60,
-                    ),
-                    focusedBorder: InputBorder.none,
-                    enabledBorder: InputBorder.none,
-                    hintText: "Search",
-                    hintStyle: TextStyle(
-                      fontFamily: 'Roboto',
-                      fontSize: 16,
-                    ),
-                  ),
-                  onChanged: (value) {
-                    setState(() {
-                      showClear = true;
-                    });
-                    if (value.toString() == "") {
-                      setState(() {
-                        showClear = false;
-                      });
+                splashRadius: 20,
+              ),
+              widget.locIcon,
+              SizedBox(
+                width: widget.sizedBoxWidth,
+              ),
+              Expanded(
+                child: TypeAheadField(
+                  suggestionsCallback: (String pattern) async {
+                    return CitiesService.cities
+                        .where((item) => item.toLowerCase().startsWith(pattern.toLowerCase()))
+                        .toList();
+                  },
+                  itemBuilder: (context, dynamic suggestion) {
+                    return ListTile(
+                      leading: Icon(
+                        Iconsax.search_normal_1,
+                        color: Colors.white,
+                        size: MediaQuery.of(context).size.height / 35,
+                      ),
+                      title: Text(
+                        suggestion,
+                      ),
+                    );
+                  },
+                  transitionBuilder: (context, suggestionsBox, controller) {
+                    if (textEditingController.text.length >= 3) {
+                      return suggestionsBox;
+                    } else {
+                      return SizedBox();
                     }
                   },
-                  onSubmitted: widget.onSubmitted,
-                ),
-                suggestionsBoxVerticalOffset: 6,
-              ),
-            ),
-            showClear == true
-                ? IconButton(
-                    icon: Icon(Icons.clear_rounded),
-                    onPressed: () {
-                      textEditingController.clear();
+                  onSuggestionSelected: widget.onSuggestionSelected,
+                  noItemsFoundBuilder: (context) => ListTile(
+                    title: Text("No Item Found!"),
+                    leading: Icon(
+                      Iconsax.danger,
+                      color: Colors.white,
+                    ),
+                  ),
+                  hideSuggestionsOnKeyboardHide: true,
+                  suggestionsBoxDecoration: SuggestionsBoxDecoration(
+                    borderRadius: BorderRadius.only(
+                      bottomRight: Radius.circular(15),
+                      bottomLeft: Radius.circular(15),
+                    ),
+                    color: Theme.of(context).primaryColor,
+                    elevation: 0,
+                    offsetX: widget.offset,
+                    constraints: BoxConstraints.tightFor(
+                      width: MediaQuery.of(context).size.width - 30,
+                    ),
+                  ),
+                  textFieldConfiguration: TextFieldConfiguration(
+                    textCapitalization: TextCapitalization.words,
+                    cursorColor: Colors.white,
+                    cursorWidth: 1.5,
+                    controller: textEditingController,
+                    textInputAction: TextInputAction.search,
+                    decoration: InputDecoration(
+                      icon: Icon(
+                        Iconsax.search_normal,
+                        color: Colors.white60,
+                      ),
+                      focusedBorder: InputBorder.none,
+                      enabledBorder: InputBorder.none,
+                      hintText: "Search",
+                      hintStyle: TextStyle(
+                        fontFamily: 'Roboto',
+                        fontSize: 16,
+                      ),
+                    ),
+                    onChanged: (value) {
                       setState(() {
-                        showClear = false;
+                        showClear = true;
                       });
+                      if (value.toString() == "") {
+                        setState(() {
+                          showClear = false;
+                        });
+                      }
                     },
-                    splashRadius: 20,
-                  )
-                : Container(),
-            widget.favoriteWidget,
-          ],
+                    onSubmitted: widget.onSubmitted,
+                  ),
+                  suggestionsBoxVerticalOffset: 6,
+                ),
+              ),
+              showClear == true
+                  ? IconButton(
+                      icon: Icon(Icons.clear_rounded),
+                      onPressed: () {
+                        textEditingController.clear();
+                        setState(() {
+                          showClear = false;
+                        });
+                      },
+                      splashRadius: 20,
+                    )
+                  : Container(),
+              widget.favoriteWidget,
+            ],
+          ),
         ),
       ),
     );
@@ -432,13 +464,7 @@ class _ListTilesState extends State<ListTiles> {
             width: MediaQuery.of(context).size.width / 12,
             height: MediaQuery.of(context).size.height / 25,
           ),
-          title: Text(
-            "Min Temperature",
-            style: TextStyle(
-              color: Colors.white,
-              fontSize: MediaQuery.of(context).size.height / 50,
-            ),
-          ),
+          title: Text("Min Temperature"),
           trailing: Text(
             widget.minTemp,
           ),
@@ -449,13 +475,7 @@ class _ListTilesState extends State<ListTiles> {
             width: MediaQuery.of(context).size.width / 12,
             height: MediaQuery.of(context).size.height / 20,
           ),
-          title: Text(
-            "Max Temperature",
-            style: TextStyle(
-              color: Colors.white,
-              fontSize: MediaQuery.of(context).size.height / 50,
-            ),
-          ),
+          title: Text("Max Temperature"),
           trailing: Text(
             widget.maxTemp,
           ),
@@ -466,13 +486,7 @@ class _ListTilesState extends State<ListTiles> {
             width: MediaQuery.of(context).size.width / 12,
             height: MediaQuery.of(context).size.height / 25,
           ),
-          title: Text(
-            "Wind Speed",
-            style: TextStyle(
-              color: Colors.white,
-              fontSize: MediaQuery.of(context).size.height / 50,
-            ),
-          ),
+          title: Text("Wind Speed"),
           trailing: Text(
             widget.wind,
           ),
@@ -524,7 +538,7 @@ class _CurrentWeatherWidgetState extends State<CurrentWeatherWidget> {
       child: Stack(
         children: [
           ClipRRect(
-            borderRadius: BorderRadius.circular(20),
+            borderRadius: BorderRadius.circular(40),
             child: Image.asset(
               widget.imagePath!,
               height: MediaQuery.of(context).size.height / 3,
@@ -545,7 +559,8 @@ class _CurrentWeatherWidgetState extends State<CurrentWeatherWidget> {
                     child: FittedBox(
                       fit: BoxFit.contain,
                       child: Text(
-                        (widget.cityName != null && widget.url.toString().contains('city')) || widget.isFavorite
+                        (widget.cityName != null && widget.url.toString().contains('city')) ||
+                                widget.isFavorite
                             ? widget.cityName.toString()
                             : widget.cityName != null
                                 ? "📍" + widget.cityName.toString()
@@ -604,7 +619,7 @@ class _CurrentWeatherWidgetState extends State<CurrentWeatherWidget> {
         alignment: Alignment.center,
       ),
       decoration: BoxDecoration(
-          color: Theme.of(context).primaryColor, borderRadius: BorderRadius.circular(20)),
+          color: Theme.of(context).primaryColor, borderRadius: BorderRadius.circular(40)),
       height: MediaQuery.of(context).size.height / 3,
       width: MediaQuery.of(context).size.width,
     );
@@ -623,18 +638,29 @@ class BottomNavigation extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      margin: EdgeInsets.symmetric(
-        horizontal: MediaQuery.of(context).size.width / 6,
-        vertical: 10,
-      ),
-      decoration: BoxDecoration(
-        color: backgroundColor.withOpacity(0.7),
-        borderRadius: BorderRadius.circular(20),
-      ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: items,
+    return SlideInUp(
+      from: MediaQuery.of(context).size.height,
+      child: Container(
+        margin: EdgeInsets.symmetric(
+          horizontal: MediaQuery.of(context).size.width / 6,
+          vertical: 10,
+        ),
+        decoration: BoxDecoration(
+          color: backgroundColor.withOpacity(0.6),
+          borderRadius: BorderRadius.circular(20),
+          boxShadow: [
+            BoxShadow(
+              blurRadius: 5,
+              spreadRadius: 1,
+              color: Colors.black12,
+              offset: Offset(0, 5),
+            ),
+          ],
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: items,
+        ),
       ),
     );
   }

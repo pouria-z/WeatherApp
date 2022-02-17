@@ -44,7 +44,7 @@ class _LocationPage extends State<LocationPage> with AutomaticKeepAliveClientMix
     });
     WidgetsBinding.instance!.addPostFrameCallback((timeStamp) async {
       await analytics.setCurrentScreen(screenName: "location_screen");
-      // await weather.getLocation();
+      await weather.getLocation();
       await weather.getFavoritesList();
       weather.locCurrentWeatherModel = weather.locCurrentWeather().whenComplete(() async {
         print("calling api");
@@ -288,6 +288,8 @@ class _LocationPage extends State<LocationPage> with AutomaticKeepAliveClientMix
                                                         return ForecastCard(
                                                           date: weather.forecastDate[index],
                                                           temp: item.temp,
+                                                          minTemp: item.minTemp,
+                                                          maxTemp: item.maxTemp,
                                                           icon: item.weatherModel!.icon,
                                                         );
                                                       },
@@ -387,6 +389,8 @@ class _LocationPage extends State<LocationPage> with AutomaticKeepAliveClientMix
                                                         return ForecastCard(
                                                           date: weather.locForecastDate[index],
                                                           temp: item.temp,
+                                                          minTemp: item.minTemp,
+                                                          maxTemp: item.maxTemp,
                                                           icon: item.weatherModel!.icon,
                                                         );
                                                       },

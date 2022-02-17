@@ -108,7 +108,7 @@ class _InfoState extends State<Info> {
                             onPressed: () {
                               var url = Platform.isAndroid
                                   ? "https://cafebazaar.ir/app/com.weather.weather_app?l=en"
-                                  : "https://sibapp.com/";
+                                  : "https://sibapp.com/applications/WeatherApp";
                               launch(url);
                             },
                             tooltip: Platform.isAndroid

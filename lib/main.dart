@@ -13,8 +13,7 @@ import 'package:weather_app/services/notification.dart';
 import 'package:weather_app/services/services.dart';
 
 Future<void> _messageHandler(RemoteMessage message) async {
-  print(
-      "notification on background received! title: '${message.notification!.body}',"
+  print("notification on background received! title: '${message.notification!.body}',"
       " body: '${message.notification!.body}'.");
 }
 
@@ -56,9 +55,9 @@ void main() async {
           primaryColor: Color(0xFF1E1F32),
           cardColor: Color(0xFF3E4C64),
           colorScheme: ThemeData.dark().colorScheme.copyWith(
-            primary: Color(0xFFBE2E47),
-            secondary: Color(0xFFB13A4F),
-          ),
+                primary: Color(0xFFBE2E47),
+                secondary: Color(0xFFB13A4F),
+              ),
           snackBarTheme: SnackBarThemeData().copyWith(
             behavior: SnackBarBehavior.floating,
             backgroundColor: Color(0xFF3E4C64),
