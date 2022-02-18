@@ -33,10 +33,11 @@ class Weather with ChangeNotifier {
     if (Platform.isIOS) {
       GeolocatorPlatform.instance.requestPermission();
     }
-    // Geolocator.requestPermission();
+    await Geolocator.requestPermission();
     try {
       position = await Geolocator.getCurrentPosition(desiredAccuracy: LocationAccuracy.low);
     } catch (e) {
+      print("could not get location");
       print(e);
     }
 
@@ -150,6 +151,7 @@ class Weather with ChangeNotifier {
         notifyListeners();
       } else {
         isFavorite = false;
+        favoritesModelList.remove(favoritesModel);
         notifyListeners();
       }
     }
@@ -161,6 +163,7 @@ class Weather with ChangeNotifier {
       notifyListeners();
     } else {
       isFavorite = false;
+      favoritesModelList.remove(favoritesModel);
       notifyListeners();
     }
   }
@@ -223,4 +226,7 @@ class Weather with ChangeNotifier {
     notifyListeners();
     return favoriteDetailsForecastModel!;
   }
+
+  List<bool> isSelected = List.generate(500, (index) => false);
+  List<String> selectedCities = List.generate(500, (index) => "");
 }

@@ -28,7 +28,7 @@ class TopLoading extends StatelessWidget {
                 height: MediaQuery.of(context).size.height / 3,
                 width: MediaQuery.of(context).size.width,
                 decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(20),
+                  borderRadius: BorderRadius.circular(40),
                   color: Colors.white,
                 ),
               ),

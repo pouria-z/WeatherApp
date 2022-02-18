@@ -10,6 +10,8 @@ import 'package:weather_app/models/searched_models/current_weather.dart';
 import 'package:weather_app/models/searched_models/forecast_weather.dart';
 import 'package:weather_app/models/location_models/loc_current_weather.dart';
 import 'package:weather_app/models/location_models/loc_forecast_weather.dart';
+import 'package:weather_app/screens/favorite/favorites.dart';
+import 'package:weather_app/screens/home.dart';
 import 'package:weather_app/services/notification.dart';
 import 'package:weather_app/services/services.dart';
 import 'package:weather_app/widgets/widgets.dart';
